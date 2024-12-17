@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-
-<?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
+<VBox spacing="10" alignment="TOP_CENTER" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.example.k105.HelloController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
-
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!" onAction="#onHelloButtonClick"/>
+    <Label text="Расчёт премиальных выплат" style="-fx-font-size: 18px;"/>
+    <TableView fx:id="tableView" prefWidth="600" prefHeight="300">
+        <columns>
+            <TableColumn text="ID" prefWidth="100"/>
+            <TableColumn text="Имя сотрудника" prefWidth="200"/>
+            <TableColumn text="Премия" prefWidth="100"/>
+            <TableColumn text="Отдел" prefWidth="200"/>
+        </columns>
+    </TableView>
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Загрузить данные" fx:id="loadButton"/>
+        <Button text="Рассчитать премии" fx:id="calculateButton"/>
+    </HBox>
 </VBox>
