@@ -5,4 +5,5 @@ module com.example.k105 {
 
     exports com.example.k105.controllers;
     exports com.example.k105.dao; // Экспорт пакета DAO
+
 }
