@@ -10,13 +10,6 @@ public class Employee {
     private double bonus;
     private LocalDate hireDate;
 
-    public Employee(int id, String name, String department, LocalDate hireDate) {
-        this.id = id;
-        this.name = name;
-        this.department = department;
-        this.hireDate = hireDate;
-    }
-
     public Employee(int id, String name, String department, double salary, double bonus, LocalDate hireDate) {
         this.id = id;
         this.name = name;
@@ -26,33 +19,13 @@ public class Employee {
         this.hireDate = hireDate;
     }
 
-    public int getId() {
-        return id;
-    }
+    // Геттеры и сеттеры
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public String getDepartment() { return department; }
+    public double getSalary() { return salary; }
+    public double getBonus() { return bonus; }
+    public LocalDate getHireDate() { return hireDate; }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getDepartment() {
-        return department;
-    }
-
-    public double getSalary() {
-        return salary;
-    }
-
-    public double getBonus() {
-        return bonus;
-    }
-
-    public void setBonus(double bonus) {
-        this.bonus = bonus;
-    }
-
-    public void setSalary(double salary) { this.salary = salary; }
-
-    public LocalDate getHireDate() {
-        return hireDate;
-    }
+    public void setBonus(double bonus) { this.bonus = bonus; }
 }
