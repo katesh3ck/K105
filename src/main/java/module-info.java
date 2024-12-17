@@ -13,4 +13,8 @@ module com.example.k105 {
 
     opens com.example.k105 to javafx.fxml;
     exports com.example.k105;
+    exports com.example.k105.controllers;
+    opens com.example.k105.controllers to javafx.fxml;
+    exports com.example.k105.dao;
+    opens com.example.k105.dao to javafx.fxml;
 }
