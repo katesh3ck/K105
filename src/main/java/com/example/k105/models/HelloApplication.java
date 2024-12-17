@@ -1,4 +1,4 @@
-package com.example.k105;
+package com.example.k105.models;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

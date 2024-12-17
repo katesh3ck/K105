@@ -1,8 +1,12 @@
 package com.example.k105.dao;
+import com.example.k105.models.Employee;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import com.example.k105.models.Employee;
+import com.example.k105.models.Bonus;
+
 
 public class EmployeeDAO {
     private static final String URL = "jdbc:postgresql://localhost:5432/bonus_system";
