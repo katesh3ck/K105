@@ -8,11 +8,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.time.LocalDate;
+import com.example.k105.dao.EmployeeDAO;
 
 public class HelloController {
 
@@ -21,12 +18,17 @@ public class HelloController {
     @FXML private Button calculateButton; // Кнопка расчета премий
 
     private ObservableList<Employee> employeeData = FXCollections.observableArrayList();
+    private EmployeeDAO employeeDAO = new EmployeeDAO(); // Экземпляр DAO
 
     @FXML
     public void initialize() {
         // Настройка кнопок
         loadButton.setOnAction(event -> loadDataFromDatabase());
-        calculateButton.setOnAction(event -> calculateBonuses());
+        calculateButton.setOnAction(event -> {
+            employeeDAO.calculateAndInsertBonuses();
+            loadDataFromDatabase();
+            System.out.println("Премии рассчитаны и добавлены в базу данных.");
+        });
 
         // Настройка колонок таблицы
         TableColumn<Employee, Integer> idColumn = new TableColumn<>("ID");
@@ -38,51 +40,21 @@ public class HelloController {
         TableColumn<Employee, String> departmentColumn = new TableColumn<>("Отдел");
         departmentColumn.setCellValueFactory(new PropertyValueFactory<>("department"));
 
+        TableColumn<Employee, Double> salaryColumn = new TableColumn<>("Зарплата");
+        salaryColumn.setCellValueFactory(new PropertyValueFactory<>("salary"));
+
         TableColumn<Employee, Double> bonusColumn = new TableColumn<>("Премия");
         bonusColumn.setCellValueFactory(new PropertyValueFactory<>("bonus"));
 
         TableColumn<Employee, LocalDate> hireDateColumn = new TableColumn<>("Дата найма");
         hireDateColumn.setCellValueFactory(new PropertyValueFactory<>("hireDate"));
 
-        // Добавляем колонки в TableView
-        tableView.getColumns().addAll(idColumn, nameColumn, departmentColumn, bonusColumn, hireDateColumn);
+        tableView.getColumns().addAll(idColumn, nameColumn, departmentColumn, salaryColumn, bonusColumn, hireDateColumn);
     }
 
-    /**
-     * Метод для загрузки данных из базы данных
-     */
     private void loadDataFromDatabase() {
-        employeeData.clear(); // Очищаем старые данные
-        try (Connection conn = DriverManager.getConnection(
-                "jdbc:postgresql://localhost:5432/bonus_system", "postgres", "23121204")) {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT id, name, department_id, salary, hire_date FROM employees");
-
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String name = rs.getString("name");
-                int departmentId = rs.getInt("department_id"); // Получаем department_id
-                double salary = rs.getDouble("salary");
-                LocalDate hireDate = rs.getDate("hire_date").toLocalDate(); // Получаем hire_date
-
-                double bonus = salary * 0.1; // Премия — 10% от зарплаты
-                employeeData.add(new Employee(id, name, String.valueOf(departmentId), bonus, hireDate));
-            }
-
-            tableView.setItems(employeeData); // Обновляем данные в таблице
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Метод для пересчета премий (пример дополнительной функции)
-     */
-    private void calculateBonuses() {
-        for (Employee employee : employeeData) {
-            double newBonus = employee.getBonus() * 1.1; // Увеличиваем премию на 10%
-            employee.setBonus(newBonus);
-        }
-        tableView.refresh(); // Обновляем отображение таблицы
+        employeeData.clear();
+        employeeData.addAll(employeeDAO.getAllEmployees());
+        tableView.setItems(employeeData);
     }
 }

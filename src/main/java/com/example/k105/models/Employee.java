@@ -6,19 +6,10 @@ public class Employee {
     private int id;
     private String name;
     private String department;
+    private double salary;
     private double bonus;
     private LocalDate hireDate;
 
-    // Полный конструктор со всеми полями
-    public Employee(int id, String name, String department, double bonus, LocalDate hireDate) {
-        this.id = id;
-        this.name = name;
-        this.department = department;
-        this.bonus = bonus;
-        this.hireDate = hireDate;
-    }
-
-    // Конструктор для hireDate
     public Employee(int id, String name, String department, LocalDate hireDate) {
         this.id = id;
         this.name = name;
@@ -26,12 +17,13 @@ public class Employee {
         this.hireDate = hireDate;
     }
 
-    // Конструктор для бонусов
-    public Employee(int id, String name, String department, double bonus) {
+    public Employee(int id, String name, String department, double salary, double bonus, LocalDate hireDate) {
         this.id = id;
         this.name = name;
         this.department = department;
+        this.salary = salary;
         this.bonus = bonus;
+        this.hireDate = hireDate;
     }
 
     public int getId() {
@@ -46,6 +38,10 @@ public class Employee {
         return department;
     }
 
+    public double getSalary() {
+        return salary;
+    }
+
     public double getBonus() {
         return bonus;
     }
@@ -54,11 +50,9 @@ public class Employee {
         this.bonus = bonus;
     }
 
+    public void setSalary(double salary) { this.salary = salary; }
+
     public LocalDate getHireDate() {
         return hireDate;
-    }
-
-    public void setHireDate(LocalDate hireDate) {
-        this.hireDate = hireDate;
     }
 }

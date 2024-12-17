@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import com.example.k105.models.Employee;
 import com.example.k105.models.Bonus;
+import java.time.LocalDate;
+
 
 
 public class EmployeeDAO {
@@ -37,7 +39,6 @@ public class EmployeeDAO {
         return employees;
     }
 
-    // Добавление премиальной выплаты
     public void insertBonus(int employeeId, int year, double bonusAmount) {
         String query = "INSERT INTO bonuses (employee_id, year, bonus_amount) VALUES (?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
@@ -51,19 +52,28 @@ public class EmployeeDAO {
         }
     }
 
+
     public void calculateAndInsertBonuses() {
-        String query = "SELECT employee_id, year, annual_result FROM employee_results";
+        String query = "SELECT e.id, e.name, d.name AS department, e.salary, e.hire_date " +
+                "FROM employees e JOIN departments d ON e.department_id = d.id";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-                int employeeId = rs.getInt("employee_id");
-                int year = rs.getInt("year");
-                double annualResult = rs.getDouble("annual_result");
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String department = rs.getString("department");
+                double salary = rs.getDouble("salary");
+                double bonus = salary * 0.1; // Премия — 10% от зарплаты
+                LocalDate hireDate = rs.getDate("hire_date").toLocalDate();
 
-                double bonus = annualResult * 0.10; // Премия = 10% от результата
-                insertBonus(employeeId, year, bonus);
+                System.out.println("ID: " + id + ", Имя: " + name + ", Отдел: " + department +
+                        ", Зарплата: " + salary + ", Премия: " + bonus +
+                        ", Дата найма: " + hireDate);
+
+                // Вставка премии в базу данных
+                insertBonus(id, LocalDate.now().getYear(), bonus);
             }
         } catch (SQLException e) {
             e.printStackTrace();
