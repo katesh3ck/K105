@@ -9,6 +9,15 @@ public class Employee {
     private double bonus;
     private LocalDate hireDate;
 
+    // Полный конструктор со всеми полями
+    public Employee(int id, String name, String department, double bonus, LocalDate hireDate) {
+        this.id = id;
+        this.name = name;
+        this.department = department;
+        this.bonus = bonus;
+        this.hireDate = hireDate;
+    }
+
     // Конструктор для hireDate
     public Employee(int id, String name, String department, LocalDate hireDate) {
         this.id = id;
@@ -47,5 +56,9 @@ public class Employee {
 
     public LocalDate getHireDate() {
         return hireDate;
+    }
+
+    public void setHireDate(LocalDate hireDate) {
+        this.hireDate = hireDate;
     }
 }

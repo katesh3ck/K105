@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.LocalDate;
 
 public class HelloController {
 
@@ -40,8 +41,11 @@ public class HelloController {
         TableColumn<Employee, Double> bonusColumn = new TableColumn<>("Премия");
         bonusColumn.setCellValueFactory(new PropertyValueFactory<>("bonus"));
 
+        TableColumn<Employee, LocalDate> hireDateColumn = new TableColumn<>("Дата найма");
+        hireDateColumn.setCellValueFactory(new PropertyValueFactory<>("hireDate"));
+
         // Добавляем колонки в TableView
-        tableView.getColumns().addAll(idColumn, nameColumn, departmentColumn, bonusColumn);
+        tableView.getColumns().addAll(idColumn, nameColumn, departmentColumn, bonusColumn, hireDateColumn);
     }
 
     /**
@@ -52,16 +56,17 @@ public class HelloController {
         try (Connection conn = DriverManager.getConnection(
                 "jdbc:postgresql://localhost:5432/bonus_system", "postgres", "23121204")) {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT id, name, department, salary FROM employees");
+            ResultSet rs = stmt.executeQuery("SELECT id, name, department_id, salary, hire_date FROM employees");
 
             while (rs.next()) {
                 int id = rs.getInt("id");
                 String name = rs.getString("name");
-                String department = rs.getString("department");
+                int departmentId = rs.getInt("department_id"); // Получаем department_id
                 double salary = rs.getDouble("salary");
+                LocalDate hireDate = rs.getDate("hire_date").toLocalDate(); // Получаем hire_date
 
                 double bonus = salary * 0.1; // Премия — 10% от зарплаты
-                employeeData.add(new Employee(id, name, department, bonus));
+                employeeData.add(new Employee(id, name, String.valueOf(departmentId), bonus, hireDate));
             }
 
             tableView.setItems(employeeData); // Обновляем данные в таблице
