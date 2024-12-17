@@ -22,13 +22,8 @@ public class HelloController {
 
     @FXML
     public void initialize() {
-        // Настройка кнопок
-        loadButton.setOnAction(event -> loadDataFromDatabase());
-        calculateButton.setOnAction(event -> {
-            employeeDAO.calculateAndInsertBonuses();
-            loadDataFromDatabase();
-            System.out.println("Премии рассчитаны и добавлены в базу данных.");
-        });
+        // Очистка старых колонок перед добавлением
+        tableView.getColumns().clear();
 
         // Настройка колонок таблицы
         TableColumn<Employee, Integer> idColumn = new TableColumn<>("ID");
@@ -49,12 +44,25 @@ public class HelloController {
         TableColumn<Employee, LocalDate> hireDateColumn = new TableColumn<>("Дата найма");
         hireDateColumn.setCellValueFactory(new PropertyValueFactory<>("hireDate"));
 
+        // Добавляем колонки в TableView
         tableView.getColumns().addAll(idColumn, nameColumn, departmentColumn, salaryColumn, bonusColumn, hireDateColumn);
+
+        // Настройка кнопок
+        loadButton.setOnAction(event -> loadDataFromDatabase());
+        calculateButton.setOnAction(event -> calculateBonuses());
     }
 
     private void loadDataFromDatabase() {
         employeeData.clear();
         employeeData.addAll(employeeDAO.getAllEmployees());
         tableView.setItems(employeeData);
+    }
+
+    private void calculateBonuses() {
+        for (Employee employee : employeeData) {
+            double newBonus = employee.getSalary() * 0.1; // Премия как 10% от зарплаты
+            employee.setBonus(newBonus);
+        }
+        tableView.refresh(); // Обновляем таблицу
     }
 }
