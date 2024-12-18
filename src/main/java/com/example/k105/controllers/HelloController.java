@@ -1,5 +1,6 @@
-package com.example.k105.models;
+package com.example.k105.controllers;
 
+import com.example.k105.models.Employee;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;

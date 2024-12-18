@@ -1,19 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextArea?>
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.k105.controllers.MainController">
 
-<VBox alignment="CENTER" spacing="10" xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.k105.controllers.MainController">
+    <!-- Верхняя панель -->
+    <top>
+        <Label text="Главное окно"
+               alignment="CENTER"
+               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 10px;" />
+    </top>
 
-    <Label text="Система расчёта премий" style="-fx-font-size: 18px;"/>
+    <!-- Центральная часть -->
+    <center>
+        <VBox spacing="10" alignment="CENTER">
+            <TableView fx:id="tableView" prefWidth="700" prefHeight="400">
+                <columns>
+                    <!-- Добавим тестовые колонки -->
+                    <TableColumn fx:id="idColumn" text="ID" />
+                    <TableColumn fx:id="nameColumn" text="Имя" />
+                    <TableColumn fx:id="positionColumn" text="Позиция" />
+                </columns>
+            </TableView>
 
-    <Button fx:id="calculateBonusButton" text="Рассчитать премии" style="-fx-font-size: 14px;"/>
+            <!-- Кнопка для вызова действия -->
+            <Button fx:id="calculateBonusButton" text="Рассчитать бонус" />
+        </VBox>
+    </center>
 
-    <Label fx:id="statusLabel" text="Статус операции будет здесь" style="-fx-text-fill: green;"/>
-
-    <TextArea fx:id="resultTextArea" prefHeight="200" prefWidth="300"
-              editable="false" wrapText="true" />
-</VBox>
+</BorderPane>

@@ -7,5 +7,6 @@ module com.example.k105 {
     exports com.example.k105.dao;
     exports com.example.k105.models;
 
-    opens com.example.k105.models to javafx.fxml; // Открываем для FXMLLoader
+    opens com.example.k105.models to javafx.fxml;
+    opens com.example.k105.controllers to javafx.fxml; // Открываем для FXMLLoader
 }

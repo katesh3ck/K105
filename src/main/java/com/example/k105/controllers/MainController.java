@@ -1,34 +1,67 @@
 package com.example.k105.controllers;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import com.example.k105.dao.EmployeeDAO;
-
+import javafx.scene.control.cell.PropertyValueFactory;
 
 public class MainController {
 
-    private EmployeeDAO employeeDAO = new EmployeeDAO();
+    @FXML
+    private TableView<Employee> tableView;
 
-    @FXML private Button calculateBonusButton; // Кнопка для расчёта премий
-    @FXML private TextArea resultTextArea;     // Поле для вывода результатов
-    @FXML private Label statusLabel;           // Статус операции
+    @FXML
+    private TableColumn<Employee, Integer> idColumn;
+
+    @FXML
+    private TableColumn<Employee, String> nameColumn;
+
+    @FXML
+    private TableColumn<Employee, String> positionColumn;
+
+    @FXML
+    private Button calculateBonusButton;
+
+    private final ObservableList<Employee> employeeData = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
-        // Обработчик нажатия кнопки "Рассчитать премии"
-        calculateBonusButton.setOnAction(e -> {
-            try {
-                employeeDAO.calculateAndInsertBonuses(); // Вызываем метод из DAO
-                statusLabel.setText("Премии успешно рассчитаны и добавлены в базу данных.");
-                resultTextArea.setText("Премии успешно рассчитаны!"); // Вывод сообщения
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                statusLabel.setText("Ошибка при расчёте премий!");
-                resultTextArea.setText("Произошла ошибка: " + ex.getMessage());
-            }
-        });
+        // Привязываем колонки к данным
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        positionColumn.setCellValueFactory(new PropertyValueFactory<>("position"));
 
+        // Добавляем тестовые данные
+        employeeData.addAll(
+                new Employee(1, "Анна Иванова", "Менеджер"),
+                new Employee(2, "Иван Петров", "Разработчик"),
+                new Employee(3, "Мария Смирнова", "Дизайнер")
+        );
+
+        // Добавляем данные в таблицу
+        tableView.setItems(employeeData);
+
+        // Логика кнопки
+        calculateBonusButton.setOnAction(event -> System.out.println("Бонусы рассчитаны!"));
+    }
+
+    // Вспомогательный класс Employee
+    public static class Employee {
+        private final Integer id;
+        private final String name;
+        private final String position;
+
+        public Employee(Integer id, String name, String position) {
+            this.id = id;
+            this.name = name;
+            this.position = position;
+        }
+
+        public Integer getId() { return id; }
+        public String getName() { return name; }
+        public String getPosition() { return position; }
     }
 }
