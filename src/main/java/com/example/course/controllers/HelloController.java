@@ -10,6 +10,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 
 public class HelloController {
@@ -29,29 +30,59 @@ public class HelloController {
 
     @FXML
     public void initialize() {
-        // Устанавливаем связь между колонками таблицы и свойствами модели Employee
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         departmentColumn.setCellValueFactory(new PropertyValueFactory<>("departmentName"));
-        salaryColumn.setCellValueFactory(new PropertyValueFactory<>("salary"));
         hireDateColumn.setCellValueFactory(new PropertyValueFactory<>("hireDate"));
-        bonusColumn.setCellValueFactory(new PropertyValueFactory<>("bonus"));
 
-        // Добавляем обработчики событий на кнопки
+        // Настройка отображения зарплаты с запятой
+        salaryColumn.setCellValueFactory(new PropertyValueFactory<>("salary"));
+        salaryColumn.setCellFactory(column -> {
+            return new javafx.scene.control.TableCell<Employee, Double>() {
+                private final DecimalFormat format = new DecimalFormat("#,##0.00");
+
+                @Override
+                protected void updateItem(Double salary, boolean empty) {
+                    super.updateItem(salary, empty);
+                    if (empty || salary == null) {
+                        setText(null);
+                    } else {
+                        setText(format.format(salary)); // Используем DecimalFormat для отображения с запятой
+                    }
+                }
+            };
+        });
+
+        // Настройка отображения премий с двумя знаками после запятой
+        bonusColumn.setCellValueFactory(new PropertyValueFactory<>("bonus"));
+        bonusColumn.setCellFactory(column -> {
+            return new javafx.scene.control.TableCell<Employee, Double>() {
+                private final DecimalFormat format = new DecimalFormat("#,##0.00");
+
+                @Override
+                protected void updateItem(Double bonus, boolean empty) {
+                    super.updateItem(bonus, empty);
+                    if (empty || bonus == null) {
+                        setText(null);
+                    } else {
+                        setText(format.format(bonus)); // Отображение премий в формате с запятой
+                    }
+                }
+            };
+        });
+
         loadButton.setOnAction(event -> loadDataFromDatabase());
         calculateButton.setOnAction(event -> calculateBonuses());
     }
+
 
     /**
      * Загрузка данных сотрудников из базы данных.
      */
     private void loadDataFromDatabase() {
-        if (employeeData == null) { // Проверяем, что employeeData не сброшено
-            employeeData = FXCollections.observableArrayList();
-        }
-        employeeData.clear(); // Очищаем текущие данные
-        employeeData.addAll(employeeDAO.getAllEmployees()); // Добавляем данные из базы
-        tableView.setItems(employeeData); // Устанавливаем данные в таблицу
+        employeeData.clear();
+        employeeData.addAll(employeeDAO.getAllEmployees());
+        tableView.setItems(employeeData);
     }
 
     /**
@@ -60,10 +91,9 @@ public class HelloController {
     private void calculateBonuses() {
         for (Employee employee : employeeData) {
             double newBonus = employee.getSalary() * 0.1; // Рассчитываем премию как 10% от зарплаты
-            employee.setBonus(newBonus); // Устанавливаем премию для отображения в таблице
+            employee.setBonus(newBonus); // Устанавливаем премию
             employeeDAO.insertBonus(employee.getId(), 2024, newBonus); // Сохраняем премию в базе данных
         }
-        loadDataFromDatabase(); // Перезагружаем данные после сохранения премий
-        tableView.refresh(); // Обновляем отображение таблицы
+        tableView.refresh(); // Обновляем таблицу
     }
 }
