@@ -17,7 +17,8 @@ public class HelloController {
 
     @FXML private TableView<Employee> tableView;
     @FXML private TableColumn<Employee, Integer> idColumn;
-    @FXML private TableColumn<Employee, String> nameColumn;
+    @FXML private TableColumn<Employee, String> firstNameColumn;
+    @FXML private TableColumn<Employee, String> lastNameColumn;
     @FXML private TableColumn<Employee, String> departmentColumn;
     @FXML private TableColumn<Employee, Double> salaryColumn;
     @FXML private TableColumn<Employee, LocalDate> hireDateColumn;
@@ -31,7 +32,8 @@ public class HelloController {
     @FXML
     public void initialize() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
+        lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
         departmentColumn.setCellValueFactory(new PropertyValueFactory<>("departmentName"));
         hireDateColumn.setCellValueFactory(new PropertyValueFactory<>("hireDate"));
 

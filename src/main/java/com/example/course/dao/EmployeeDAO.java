@@ -3,13 +3,11 @@ package com.example.course.dao;
 import com.example.course.models.Employee;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EmployeeDAO {
-    private static final String URL = "jdbc:postgresql://localhost:5432/bonus_system";
-    private static final String USER = "postgres";
-    private static final String PASSWORD = "23121204";
 
     /**
      * Получение всех сотрудников из базы данных.
@@ -18,29 +16,32 @@ public class EmployeeDAO {
      */
     public List<Employee> getAllEmployees() {
         List<Employee> employees = new ArrayList<>();
-        String query = "SELECT e.id, e.name, d.name as department, e.salary, e.hire_date " +
-                "FROM employees e JOIN departments d ON e.department_id = d.id";
+        String query = "SELECT e.id, e.first_name, e.last_name, d.name AS department_name, e.salary, e.hire_date " +
+                "FROM employees e " +
+                "JOIN departments d ON e.department_id = d.id";
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
 
-            while (rs.next()) {
-                employees.add(new Employee(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("department"),
-                        rs.getDouble("salary"),
-                        rs.getDate("hire_date").toLocalDate()
-                ));
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String firstName = resultSet.getString("first_name");
+                String lastName = resultSet.getString("last_name");
+                String departmentName = resultSet.getString("department_name"); // Получение названия отдела
+                double salary = resultSet.getDouble("salary");
+                LocalDate hireDate = resultSet.getDate("hire_date").toLocalDate();
+
+                employees.add(new Employee(id, firstName, lastName, departmentName, salary, hireDate));
             }
-            System.out.println("Успешно загружены данные о сотрудниках из базы.");
         } catch (SQLException e) {
             System.err.println("Ошибка при получении данных о сотрудниках: " + e.getMessage());
             throw new RuntimeException("Не удалось выполнить запрос для получения сотрудников", e);
         }
+
         return employees;
     }
+
 
     /**
      * Вставка премии сотруднику в базу данных.
@@ -53,7 +54,7 @@ public class EmployeeDAO {
         String checkEmployeeQuery = "SELECT COUNT(*) FROM employees WHERE id = ?";
         String insertBonusQuery = "INSERT INTO bonuses (employee_id, year, bonus_amount) VALUES (?, ?, ?)";
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement checkStmt = conn.prepareStatement(checkEmployeeQuery)) {
 
             checkStmt.setInt(1, employeeId);
@@ -74,6 +75,4 @@ public class EmployeeDAO {
             throw new RuntimeException("Не удалось вставить премию", e);
         }
     }
-
-
 }
