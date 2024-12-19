@@ -25,8 +25,8 @@
                     <TableColumn fx:id="salaryColumn" text="Зарплата" minWidth="5" />
                     <TableColumn fx:id="bonusColumn" text="Премия" minWidth="5" />
                     <TableColumn fx:id="hireDateColumn" text="Дата найма" minWidth="9" />
-                    <TableColumn fx:id="experienceYearsColumn" text="Количество лет стажа"/>
-                    <TableColumn fx:id="experienceMonthsColumn" text="Количество месяцев стажа"/>
+                    <TableColumn fx:id="experienceColumn" text="Стаж"/>
+
                 </columns>
             </TableView>
         </VBox>

@@ -25,8 +25,7 @@ public class HelloController {
     @FXML private TableColumn<Employee, Double> salaryColumn;
     @FXML private TableColumn<Employee, LocalDate> hireDateColumn;
     @FXML private TableColumn<Employee, Double> bonusColumn;
-    @FXML private TableColumn<Employee, Integer> experienceYearsColumn;
-    @FXML private TableColumn<Employee, Integer> experienceMonthsColumn;
+    @FXML private TableColumn<Employee, String> experienceColumn;
     @FXML private Button loadButton;
     @FXML private Button calculateButton;
 
@@ -42,8 +41,7 @@ public class HelloController {
         departmentColumn.setCellValueFactory(new PropertyValueFactory<>("departmentName"));
         positionColumn.setCellValueFactory(cellData -> cellData.getValue().positionProperty());
         hireDateColumn.setCellValueFactory(new PropertyValueFactory<>("hireDate"));
-        experienceYearsColumn.setCellValueFactory(new PropertyValueFactory<>("experienceYears"));
-        experienceMonthsColumn.setCellValueFactory(new PropertyValueFactory<>("experienceMonths"));
+
 
         // Настройка отображения зарплаты
         salaryColumn.setCellValueFactory(new PropertyValueFactory<>("salary"));
@@ -114,6 +112,15 @@ public class HelloController {
                 }
             }
         });
+
+        experienceColumn.setCellValueFactory(cellData -> {
+            Employee employee = cellData.getValue();
+            int years = employee.getExperienceYears();
+            int months = employee.getExperienceMonths();
+            String experience = years + " years " + months + " months"; // Формат для отображения
+            return new javafx.beans.property.SimpleStringProperty(experience);
+        });
+
 
         // Устанавливаем действия для кнопок
         loadButton.setOnAction(event -> loadDataFromDatabase());
