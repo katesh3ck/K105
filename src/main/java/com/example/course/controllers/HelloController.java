@@ -25,7 +25,7 @@ public class HelloController {
     @FXML private Button loadButton;
     @FXML private Button calculateButton;
 
-    private ObservableList<Employee> employeeData = FXCollections.observableArrayList();
+    private final ObservableList<Employee> employeeData = FXCollections.observableArrayList();
     private final EmployeeDAO employeeDAO = new EmployeeDAO();
 
     @FXML
@@ -37,38 +37,34 @@ public class HelloController {
 
         // Настройка отображения зарплаты с запятой
         salaryColumn.setCellValueFactory(new PropertyValueFactory<>("salary"));
-        salaryColumn.setCellFactory(column -> {
-            return new javafx.scene.control.TableCell<Employee, Double>() {
-                private final DecimalFormat format = new DecimalFormat("#,##0.00");
+        salaryColumn.setCellFactory(column -> new javafx.scene.control.TableCell<>() {
+            private final DecimalFormat format = new DecimalFormat("#,##0.00");
 
-                @Override
-                protected void updateItem(Double salary, boolean empty) {
-                    super.updateItem(salary, empty);
-                    if (empty || salary == null) {
-                        setText(null);
-                    } else {
-                        setText(format.format(salary)); // Используем DecimalFormat для отображения с запятой
-                    }
+            @Override
+            protected void updateItem(Double salary, boolean empty) {
+                super.updateItem(salary, empty);
+                if (empty || salary == null) {
+                    setText(null);
+                } else {
+                    setText(format.format(salary)); // Используем DecimalFormat для отображения с запятой
                 }
-            };
+            }
         });
 
         // Настройка отображения премий с двумя знаками после запятой
         bonusColumn.setCellValueFactory(new PropertyValueFactory<>("bonus"));
-        bonusColumn.setCellFactory(column -> {
-            return new javafx.scene.control.TableCell<Employee, Double>() {
-                private final DecimalFormat format = new DecimalFormat("#,##0.00");
+        bonusColumn.setCellFactory(column -> new javafx.scene.control.TableCell<>() {
+            private final DecimalFormat format = new DecimalFormat("#,##0.00");
 
-                @Override
-                protected void updateItem(Double bonus, boolean empty) {
-                    super.updateItem(bonus, empty);
-                    if (empty || bonus == null) {
-                        setText(null);
-                    } else {
-                        setText(format.format(bonus)); // Отображение премий в формате с запятой
-                    }
+            @Override
+            protected void updateItem(Double bonus, boolean empty) {
+                super.updateItem(bonus, empty);
+                if (empty || bonus == null) {
+                    setText(null);
+                } else {
+                    setText(format.format(bonus)); // Отображение премий в формате с запятой
                 }
-            };
+            }
         });
 
         loadButton.setOnAction(event -> loadDataFromDatabase());
