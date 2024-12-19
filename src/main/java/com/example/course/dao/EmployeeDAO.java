@@ -6,14 +6,11 @@ import com.example.course.models.Bonus;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class EmployeeDAO {
     private static final String URL = "jdbc:postgresql://localhost:5432/bonus_system";
     private static final String USER = "postgres";
     private static final String PASSWORD = "23121204";
-    private static final Logger logger = LoggerFactory.getLogger(EmployeeDAO.class);
 
     /**
      * Получение всех сотрудников из базы данных.
@@ -35,13 +32,12 @@ public class EmployeeDAO {
                         rs.getString("name"),
                         rs.getString("department"),
                         rs.getDouble("salary"),
-                        0.0, // Премия по умолчанию
                         rs.getDate("hire_date").toLocalDate()
                 ));
             }
-            logger.info("Успешно загружены данные о сотрудниках из базы.");
+            System.out.println("Успешно загружены данные о сотрудниках из базы.");
         } catch (SQLException e) {
-            logger.error("Ошибка при получении данных о сотрудниках: ", e);
+            System.err.println("Ошибка при получении данных о сотрудниках: " + e.getMessage());
             throw new RuntimeException("Не удалось выполнить запрос для получения сотрудников", e);
         }
         return employees;
@@ -55,19 +51,31 @@ public class EmployeeDAO {
      * @param bonusAmount Сумма премии.
      */
     public void insertBonus(int employeeId, int year, double bonusAmount) {
-        String query = "INSERT INTO bonuses (employee_id, year, bonus_amount) VALUES (?, ?, ?)";
+        String checkEmployeeQuery = "SELECT COUNT(*) FROM employees WHERE id = ?";
+        String insertBonusQuery = "INSERT INTO bonuses (employee_id, year, bonus_amount) VALUES (?, ?, ?)";
+
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, employeeId);
-            pstmt.setInt(2, year);
-            pstmt.setDouble(3, bonusAmount);
-            pstmt.executeUpdate();
-            logger.info("Премия успешно добавлена: Employee ID={}, Year={}, Amount={}", employeeId, year, bonusAmount);
+             PreparedStatement checkStmt = conn.prepareStatement(checkEmployeeQuery)) {
+
+            checkStmt.setInt(1, employeeId);
+            ResultSet rs = checkStmt.executeQuery();
+            if (rs.next() && rs.getInt(1) == 0) {
+                throw new SQLException("Сотрудник с ID " + employeeId + " не найден.");
+            }
+
+            try (PreparedStatement pstmt = conn.prepareStatement(insertBonusQuery)) {
+                pstmt.setInt(1, employeeId);
+                pstmt.setInt(2, year);
+                pstmt.setDouble(3, bonusAmount);
+                pstmt.executeUpdate();
+                System.out.println("Премия успешно добавлена: Employee ID=" + employeeId + ", Year=" + year + ", Amount=" + bonusAmount);
+            }
         } catch (SQLException e) {
-            logger.error("Ошибка при вставке премии в базу данных: ", e);
+            System.err.println("Ошибка при вставке премии в базу данных: " + e.getMessage());
             throw new RuntimeException("Не удалось вставить премию", e);
         }
     }
+
 
     /**
      * Расчёт премий для сотрудников.
@@ -87,16 +95,11 @@ public class EmployeeDAO {
                 double salary = rs.getDouble("salary");
                 double bonusAmount = salary * 0.1; // 10% от зарплаты
 
-                bonuses.add(new Bonus(
-                        employeeId,             // ID сотрудника
-                        rs.getInt("year"),      // Год премии
-                        rs.getDouble("bonus_amount") // Сумма премии
-                ));
-
+                bonuses.add(new Bonus(employeeId, 2024, bonusAmount));
             }
-            logger.info("Премии успешно рассчитаны для всех сотрудников.");
+            System.out.println("Премии успешно рассчитаны для всех сотрудников.");
         } catch (SQLException e) {
-            logger.error("Ошибка при расчёте премий: ", e);
+            System.err.println("Ошибка при расчёте премий: " + e.getMessage());
             throw new RuntimeException("Не удалось рассчитать премии", e);
         }
         return bonuses;
@@ -120,9 +123,9 @@ public class EmployeeDAO {
                 pstmt.addBatch();
             }
             pstmt.executeBatch();
-            logger.info("Премии успешно сохранены в базу данных.");
+            System.out.println("Премии успешно сохранены в базу данных.");
         } catch (SQLException e) {
-            logger.error("Ошибка при сохранении премий в базу данных: ", e);
+            System.err.println("Ошибка при сохранении премий в базу данных: " + e.getMessage());
             throw new RuntimeException("Не удалось сохранить премии", e);
         }
     }
@@ -131,7 +134,7 @@ public class EmployeeDAO {
      * Получение премий сотрудника по его ID.
      *
      * @param employeeId  ID сотрудника.
-     * @param bonusAmount
+     * @param bonusAmount Сумма премии.
      * @return Список объектов Bonus.
      */
     public List<Bonus> getBonusesByEmployee(int employeeId, double bonusAmount, int year) {
@@ -144,11 +147,11 @@ public class EmployeeDAO {
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                bonuses.add(new Bonus(employeeId, year, bonusAmount));
+                bonuses.add(new Bonus(employeeId, rs.getInt("year"), rs.getDouble("bonus_amount")));
             }
-            logger.info("Данные о премиях успешно загружены для сотрудника ID={}", employeeId);
+            System.out.println("Данные о премиях успешно загружены для сотрудника ID=" + employeeId);
         } catch (SQLException e) {
-            logger.error("Ошибка при получении премий сотрудника: ", e);
+            System.err.println("Ошибка при получении премий сотрудника: " + e.getMessage());
             throw new RuntimeException("Не удалось получить данные о премиях", e);
         }
         return bonuses;
