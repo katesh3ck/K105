@@ -9,21 +9,36 @@ public class Employee {
     private final StringProperty firstName;
     private final StringProperty lastName;
     private final StringProperty departmentName;
+    private final StringProperty position;
     private final DoubleProperty salary;
     private final DoubleProperty bonus;
     private final ObjectProperty<LocalDate> hireDate;
 
-    public Employee(int id, String firstName, String lastName, String departmentName, double salary, LocalDate hireDate) {
+    public Employee(int id, String firstName, String lastName, String departmentName, String position, double salary, LocalDate hireDate) {
         this.id = new SimpleIntegerProperty(id);
         this.firstName = new SimpleStringProperty(firstName);
         this.lastName = new SimpleStringProperty(lastName);
-        this.departmentName = new SimpleStringProperty(departmentName); // Инициализация departmentName
+        this.departmentName = new SimpleStringProperty(departmentName);
+        this.position = new SimpleStringProperty(position); // Инициализируем должность
         this.salary = new SimpleDoubleProperty(salary);
         this.bonus = new SimpleDoubleProperty(0.0); // Инициализируем бонус как 0
         this.hireDate = new SimpleObjectProperty<>(hireDate);
     }
 
     // Геттеры и сеттеры для JavaFX Properties
+
+    public String getPosition() {
+        return position.get();
+    }
+
+    public void setPosition(String position) {
+        this.position.set(position);
+    }
+
+    public StringProperty positionProperty() {
+        return position;
+    }
+
     public int getId() {
         return id.get();
     }

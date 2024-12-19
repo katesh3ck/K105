@@ -16,7 +16,7 @@ public class EmployeeDAO {
      */
     public List<Employee> getAllEmployees() {
         List<Employee> employees = new ArrayList<>();
-        String query = "SELECT e.id, e.first_name, e.last_name, d.name AS department_name, e.salary, e.hire_date " +
+        String query = "SELECT e.id, e.first_name, e.last_name, d.name AS department_name, d.description AS position, e.salary, e.hire_date " +
                 "FROM employees e " +
                 "JOIN departments d ON e.department_id = d.id";
 
@@ -28,11 +28,12 @@ public class EmployeeDAO {
                 int id = resultSet.getInt("id");
                 String firstName = resultSet.getString("first_name");
                 String lastName = resultSet.getString("last_name");
-                String departmentName = resultSet.getString("department_name"); // Получение названия отдела
+                String departmentName = resultSet.getString("department_name");
+                String position = resultSet.getString("position"); // Получаем описание должности
                 double salary = resultSet.getDouble("salary");
                 LocalDate hireDate = resultSet.getDate("hire_date").toLocalDate();
 
-                employees.add(new Employee(id, firstName, lastName, departmentName, salary, hireDate));
+                employees.add(new Employee(id, firstName, lastName, departmentName, position, salary, hireDate));
             }
         } catch (SQLException e) {
             System.err.println("Ошибка при получении данных о сотрудниках: " + e.getMessage());
@@ -41,6 +42,7 @@ public class EmployeeDAO {
 
         return employees;
     }
+
 
 
     /**

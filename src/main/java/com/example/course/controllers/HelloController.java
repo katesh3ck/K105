@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -20,6 +21,7 @@ public class HelloController {
     @FXML private TableColumn<Employee, String> firstNameColumn;
     @FXML private TableColumn<Employee, String> lastNameColumn;
     @FXML private TableColumn<Employee, String> departmentColumn;
+    @FXML private TableColumn<Employee, String> positionColumn;
     @FXML private TableColumn<Employee, Double> salaryColumn;
     @FXML private TableColumn<Employee, LocalDate> hireDateColumn;
     @FXML private TableColumn<Employee, Double> bonusColumn;
@@ -31,15 +33,17 @@ public class HelloController {
 
     @FXML
     public void initialize() {
+        // Настройка отображения данных в столбцах
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
         lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
         departmentColumn.setCellValueFactory(new PropertyValueFactory<>("departmentName"));
+        positionColumn.setCellValueFactory(cellData -> cellData.getValue().positionProperty());
         hireDateColumn.setCellValueFactory(new PropertyValueFactory<>("hireDate"));
 
-        // Настройка отображения зарплаты с запятой
+        // Настройка отображения зарплаты
         salaryColumn.setCellValueFactory(new PropertyValueFactory<>("salary"));
-        salaryColumn.setCellFactory(column -> new javafx.scene.control.TableCell<>() {
+        salaryColumn.setCellFactory(column -> new TableCell<>() {
             private final DecimalFormat format = new DecimalFormat("#,##0.00");
 
             @Override
@@ -48,14 +52,14 @@ public class HelloController {
                 if (empty || salary == null) {
                     setText(null);
                 } else {
-                    setText(format.format(salary)); // Используем DecimalFormat для отображения с запятой
+                    setText(format.format(salary)); // Форматируем зарплату
                 }
             }
         });
 
-        // Настройка отображения премий с двумя знаками после запятой
+        // Настройка отображения премий
         bonusColumn.setCellValueFactory(new PropertyValueFactory<>("bonus"));
-        bonusColumn.setCellFactory(column -> new javafx.scene.control.TableCell<>() {
+        bonusColumn.setCellFactory(column -> new TableCell<>() {
             private final DecimalFormat format = new DecimalFormat("#,##0.00");
 
             @Override
@@ -64,15 +68,77 @@ public class HelloController {
                 if (empty || bonus == null) {
                     setText(null);
                 } else {
-                    setText(format.format(bonus)); // Отображение премий в формате с запятой
+                    setText(format.format(bonus)); // Форматируем премию
                 }
             }
         });
 
+        // Настройка отображения отдела с переносом текста
+        departmentColumn.setCellFactory(column -> new TableCell<>() {
+            private final javafx.scene.text.Text text = new javafx.scene.text.Text();
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    text.setText(item);
+                    text.wrappingWidthProperty().bind(departmentColumn.widthProperty().subtract(10));
+                    setGraphic(text);
+                    setText(null);
+                }
+            }
+        });
+
+        // Настройка отображения должности с переносом текста
+        positionColumn.setCellFactory(column -> new TableCell<Employee, String>() {
+            private final javafx.scene.text.Text text = new javafx.scene.text.Text();
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    text.setText(item);
+                    text.wrappingWidthProperty().bind(positionColumn.widthProperty().subtract(10));
+                    setGraphic(text);
+                    setText(null);
+                }
+            }
+        });
+
+        // Устанавливаем действия для кнопок
         loadButton.setOnAction(event -> loadDataFromDatabase());
         calculateButton.setOnAction(event -> calculateBonuses());
     }
 
+
+    /**
+     * Метод для автоизменения ширины столбцов.
+     */
+    private void autoResizeColumns() {
+        tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY); // Устанавливаем новую политику
+
+        for (TableColumn<Employee, ?> column : tableView.getColumns()) {
+            column.setPrefWidth(100); // Устанавливаем базовую ширину
+        }
+
+        tableView.widthProperty().addListener((observable, oldWidth, newWidth) -> {
+            double totalWidth = tableView.getColumns().stream().mapToDouble(TableColumn::getWidth).sum();
+            double availableWidth = newWidth.doubleValue();
+
+            if (totalWidth < availableWidth) {
+                double extraSpace = (availableWidth - totalWidth) / tableView.getColumns().size();
+                for (TableColumn<Employee, ?> column : tableView.getColumns()) {
+                    column.setPrefWidth(column.getWidth() + extraSpace);
+                }
+            }
+        });
+    }
 
     /**
      * Загрузка данных сотрудников из базы данных.
@@ -81,6 +147,9 @@ public class HelloController {
         employeeData.clear();
         employeeData.addAll(employeeDAO.getAllEmployees());
         tableView.setItems(employeeData);
+
+        // Обновляем ширину столбцов после загрузки данных
+        autoResizeColumns();
     }
 
     /**
