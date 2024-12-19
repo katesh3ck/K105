@@ -1,7 +1,6 @@
 package com.example.course.dao;
 
 import com.example.course.models.Employee;
-import com.example.course.models.Bonus;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -77,83 +76,4 @@ public class EmployeeDAO {
     }
 
 
-    /**
-     * Расчёт премий для сотрудников.
-     *
-     * @return Список объектов Bonus с рассчитанными премиями.
-     */
-    public List<Bonus> calculateBonuses() {
-        List<Bonus> bonuses = new ArrayList<>();
-        String query = "SELECT id, salary FROM employees";
-
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
-            while (rs.next()) {
-                int employeeId = rs.getInt("id");
-                double salary = rs.getDouble("salary");
-                double bonusAmount = salary * 0.1; // 10% от зарплаты
-
-                bonuses.add(new Bonus(employeeId, 2024, bonusAmount));
-            }
-            System.out.println("Премии успешно рассчитаны для всех сотрудников.");
-        } catch (SQLException e) {
-            System.err.println("Ошибка при расчёте премий: " + e.getMessage());
-            throw new RuntimeException("Не удалось рассчитать премии", e);
-        }
-        return bonuses;
-    }
-
-    /**
-     * Сохранение рассчитанных премий в базу данных.
-     *
-     * @param bonuses Список объектов Bonus для сохранения.
-     */
-    public void insertBonuses(List<Bonus> bonuses) {
-        String query = "INSERT INTO bonuses (employee_id, year, bonus_amount) VALUES (?, ?, ?)";
-
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-            for (Bonus bonus : bonuses) {
-                pstmt.setInt(1, bonus.getEmployeeId());
-                pstmt.setInt(2, bonus.getYear());
-                pstmt.setDouble(3, bonus.getBonusAmount());
-                pstmt.addBatch();
-            }
-            pstmt.executeBatch();
-            System.out.println("Премии успешно сохранены в базу данных.");
-        } catch (SQLException e) {
-            System.err.println("Ошибка при сохранении премий в базу данных: " + e.getMessage());
-            throw new RuntimeException("Не удалось сохранить премии", e);
-        }
-    }
-
-    /**
-     * Получение премий сотрудника по его ID.
-     *
-     * @param employeeId  ID сотрудника.
-     * @param bonusAmount Сумма премии.
-     * @return Список объектов Bonus.
-     */
-    public List<Bonus> getBonusesByEmployee(int employeeId, double bonusAmount, int year) {
-        List<Bonus> bonuses = new ArrayList<>();
-        String query = "SELECT year, bonus_amount FROM bonuses WHERE employee_id = ?";
-
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, employeeId);
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                bonuses.add(new Bonus(employeeId, rs.getInt("year"), rs.getDouble("bonus_amount")));
-            }
-            System.out.println("Данные о премиях успешно загружены для сотрудника ID=" + employeeId);
-        } catch (SQLException e) {
-            System.err.println("Ошибка при получении премий сотрудника: " + e.getMessage());
-            throw new RuntimeException("Не удалось получить данные о премиях", e);
-        }
-        return bonuses;
-    }
 }
