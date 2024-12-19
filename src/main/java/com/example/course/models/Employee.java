@@ -1,4 +1,4 @@
-package com.example.k105.models;
+package com.example.course.models;
 
 import java.time.LocalDate;
 
