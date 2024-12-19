@@ -13,14 +13,18 @@ public class Employee {
     private final DoubleProperty salary;
     private final DoubleProperty bonus;
     private final ObjectProperty<LocalDate> hireDate;
+    private int experienceYears;
+    private int experienceMonths;
 
-    public Employee(int id, String firstName, String lastName, String departmentName, String position, double salary, LocalDate hireDate) {
+    public Employee(int id, String firstName, String lastName, String departmentName, String position, double salary, LocalDate hireDate, int experienceYears, int experienceMonths) {
         this.id = new SimpleIntegerProperty(id);
         this.firstName = new SimpleStringProperty(firstName);
         this.lastName = new SimpleStringProperty(lastName);
         this.departmentName = new SimpleStringProperty(departmentName);
         this.position = new SimpleStringProperty(position); // Инициализируем должность
         this.salary = new SimpleDoubleProperty(salary);
+        this.experienceYears = experienceYears;
+        this.experienceMonths = experienceMonths;
         this.bonus = new SimpleDoubleProperty(0.0); // Инициализируем бонус как 0
         this.hireDate = new SimpleObjectProperty<>(hireDate);
     }
@@ -118,4 +122,20 @@ public class Employee {
     public ObjectProperty<LocalDate> hireDateProperty() {
         return hireDate;
     }
-}
+
+    public int getExperienceYears() {
+        return experienceYears;
+    }
+
+    public void setExperienceYears(int experienceYears) {
+        this.experienceYears = experienceYears;
+    }
+
+    public int getExperienceMonths() {
+        return experienceMonths;
+    }
+
+    public void setExperienceMonths(int experienceMonths) {
+        this.experienceMonths = experienceMonths;
+    }
+    }

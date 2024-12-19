@@ -25,6 +25,8 @@ public class HelloController {
     @FXML private TableColumn<Employee, Double> salaryColumn;
     @FXML private TableColumn<Employee, LocalDate> hireDateColumn;
     @FXML private TableColumn<Employee, Double> bonusColumn;
+    @FXML private TableColumn<Employee, Integer> experienceYearsColumn;
+    @FXML private TableColumn<Employee, Integer> experienceMonthsColumn;
     @FXML private Button loadButton;
     @FXML private Button calculateButton;
 
@@ -40,6 +42,8 @@ public class HelloController {
         departmentColumn.setCellValueFactory(new PropertyValueFactory<>("departmentName"));
         positionColumn.setCellValueFactory(cellData -> cellData.getValue().positionProperty());
         hireDateColumn.setCellValueFactory(new PropertyValueFactory<>("hireDate"));
+        experienceYearsColumn.setCellValueFactory(new PropertyValueFactory<>("experienceYears"));
+        experienceMonthsColumn.setCellValueFactory(new PropertyValueFactory<>("experienceMonths"));
 
         // Настройка отображения зарплаты
         salaryColumn.setCellValueFactory(new PropertyValueFactory<>("salary"));
@@ -93,7 +97,7 @@ public class HelloController {
         });
 
         // Настройка отображения должности с переносом текста
-        positionColumn.setCellFactory(column -> new TableCell<Employee, String>() {
+        positionColumn.setCellFactory(column -> new TableCell<>() {
             private final javafx.scene.text.Text text = new javafx.scene.text.Text();
 
             @Override
