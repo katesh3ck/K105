@@ -32,6 +32,7 @@
         </VBox>
     </center>
 
+
     <!-- Нижняя панель с кнопками -->
     <bottom>
         <HBox spacing="15" alignment="CENTER" style="-fx-padding: 10px;">
