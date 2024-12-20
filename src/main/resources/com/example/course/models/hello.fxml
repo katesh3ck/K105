@@ -17,6 +17,7 @@
         <VBox spacing="10" alignment="CENTER">
             <TableView fx:id="tableView" prefWidth="800" prefHeight="400">
                 <columns>
+                    <TableColumn fx:id="selectColumn" text="Выбрать"/>
                     <TableColumn fx:id="idColumn" text="ID" minWidth="5" />
                     <TableColumn fx:id="firstNameColumn" text="Имя" minWidth="25" />
                     <TableColumn fx:id="lastNameColumn" text="Фамилия" minWidth="25" />

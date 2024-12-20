@@ -2,6 +2,7 @@ package com.example.course.controllers;
 
 import com.example.course.models.Employee;
 import com.example.course.dao.EmployeeDAO;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -9,7 +10,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.text.Text;
 
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -26,6 +29,7 @@ public class HelloController {
     @FXML private TableColumn<Employee, LocalDate> hireDateColumn;
     @FXML private TableColumn<Employee, Double> bonusColumn;
     @FXML private TableColumn<Employee, String> experienceColumn;
+    @FXML private TableColumn<Employee, Boolean> selectColumn;
     @FXML private Button loadButton;
     @FXML private Button calculateButton;
 
@@ -34,12 +38,20 @@ public class HelloController {
 
     @FXML
     public void initialize() {
-        // Настройка отображения данных в столбцах
+        selectColumn.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
+        selectColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectColumn));
+
+        // Убедитесь, что TableView редактируемый
+        tableView.setEditable(true);
+
+        // Остальная инициализация
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
         lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
         departmentColumn.setCellValueFactory(new PropertyValueFactory<>("departmentName"));
         positionColumn.setCellValueFactory(cellData -> cellData.getValue().positionProperty());
+        salaryColumn.setCellValueFactory(new PropertyValueFactory<>("salary"));
+        bonusColumn.setCellValueFactory(new PropertyValueFactory<>("bonus"));
         hireDateColumn.setCellValueFactory(new PropertyValueFactory<>("hireDate"));
 
 
@@ -77,7 +89,7 @@ public class HelloController {
 
         // Настройка отображения отдела с переносом текста
         departmentColumn.setCellFactory(column -> new TableCell<>() {
-            private final javafx.scene.text.Text text = new javafx.scene.text.Text();
+            private final Text text = new Text();
 
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -96,7 +108,7 @@ public class HelloController {
 
         // Настройка отображения должности с переносом текста
         positionColumn.setCellFactory(column -> new TableCell<>() {
-            private final javafx.scene.text.Text text = new javafx.scene.text.Text();
+            private final Text text = new Text();
 
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -118,7 +130,7 @@ public class HelloController {
             int years = employee.getExperienceYears();
             int months = employee.getExperienceMonths();
             String experience = years + " years " + months + " months"; // Формат для отображения
-            return new javafx.beans.property.SimpleStringProperty(experience);
+            return new SimpleStringProperty(experience);
         });
 
 
@@ -168,9 +180,11 @@ public class HelloController {
      */
     private void calculateBonuses() {
         for (Employee employee : employeeData) {
-            double newBonus = employee.getSalary() * 0.1; // Рассчитываем премию как 10% от зарплаты
-            employee.setBonus(newBonus); // Устанавливаем премию
-            employeeDAO.insertBonus(employee.getId(), 2024, newBonus); // Сохраняем премию в базе данных
+            if (employee.isSelected()) { // Проверяем, выбран ли сотрудник
+                double newBonus = employee.getSalary() * 0.1;
+                employee.setBonus(newBonus);
+                employeeDAO.insertBonus(employee.getId(), 2024, newBonus); // Сохраняем премию в базе данных
+            }
         }
         tableView.refresh(); // Обновляем таблицу
     }
