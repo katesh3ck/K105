@@ -6,20 +6,20 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 
 import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.util.List;
 
 public class HelloController {
 
+    // Основная таблица
     @FXML private TableView<Employee> tableView;
+    @FXML private TableColumn<Employee, Boolean> selectColumn;
     @FXML private TableColumn<Employee, Integer> idColumn;
     @FXML private TableColumn<Employee, String> firstNameColumn;
     @FXML private TableColumn<Employee, String> lastNameColumn;
@@ -27,35 +27,53 @@ public class HelloController {
     @FXML private TableColumn<Employee, String> positionColumn;
     @FXML private TableColumn<Employee, Double> salaryColumn;
     @FXML private TableColumn<Employee, LocalDate> hireDateColumn;
-    @FXML private TableColumn<Employee, Double> bonusColumn;
     @FXML private TableColumn<Employee, String> experienceColumn;
-    @FXML private TableColumn<Employee, Boolean> selectColumn;
+
+    // Сводная таблица
+    @FXML private TableView<Employee> summaryTableView;
+    @FXML private TableColumn<Employee, String> summaryFirstNameColumn;
+    @FXML private TableColumn<Employee, String> summaryLastNameColumn;
+    @FXML private TableColumn<Employee, Double> summaryBonusColumn;
+
     @FXML private Button loadButton;
     @FXML private Button calculateButton;
 
     private final ObservableList<Employee> employeeData = FXCollections.observableArrayList();
+    private final ObservableList<Employee> summaryData = FXCollections.observableArrayList();
     private final EmployeeDAO employeeDAO = new EmployeeDAO();
 
     @FXML
     public void initialize() {
+        // Инициализация основной таблицы
+        initializeMainTable();
+
+        // Инициализация сводной таблицы
+        initializeSummaryTable();
+
+        // Устанавливаем действия для кнопок
+        loadButton.setOnAction(event -> loadDataFromDatabase());
+        calculateButton.setOnAction(event -> calculateBonuses());
+    }
+
+    /**
+     * Инициализация основной таблицы с подробными данными сотрудников.
+     */
+    private void initializeMainTable() {
+        // Настройка столбца с чекбоксом
         selectColumn.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
         selectColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectColumn));
+        selectColumn.setPrefWidth(60);
+        selectColumn.setResizable(false);
 
-        // Убедитесь, что TableView редактируемый
-        tableView.setEditable(true);
-
-        // Остальная инициализация
+        // Настройка остальных столбцов
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
         lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
         departmentColumn.setCellValueFactory(new PropertyValueFactory<>("departmentName"));
         positionColumn.setCellValueFactory(cellData -> cellData.getValue().positionProperty());
-        salaryColumn.setCellValueFactory(new PropertyValueFactory<>("salary"));
-        bonusColumn.setCellValueFactory(new PropertyValueFactory<>("bonus"));
         hireDateColumn.setCellValueFactory(new PropertyValueFactory<>("hireDate"));
 
-
-        // Настройка отображения зарплаты
+        // Форматирование зарплаты
         salaryColumn.setCellValueFactory(new PropertyValueFactory<>("salary"));
         salaryColumn.setCellFactory(column -> new TableCell<>() {
             private final DecimalFormat format = new DecimalFormat("#,##0.00");
@@ -66,28 +84,12 @@ public class HelloController {
                 if (empty || salary == null) {
                     setText(null);
                 } else {
-                    setText(format.format(salary)); // Форматируем зарплату
+                    setText(format.format(salary));
                 }
             }
         });
 
-        // Настройка отображения премий
-        bonusColumn.setCellValueFactory(new PropertyValueFactory<>("bonus"));
-        bonusColumn.setCellFactory(column -> new TableCell<>() {
-            private final DecimalFormat format = new DecimalFormat("#,##0.00");
-
-            @Override
-            protected void updateItem(Double bonus, boolean empty) {
-                super.updateItem(bonus, empty);
-                if (empty || bonus == null) {
-                    setText(null);
-                } else {
-                    setText(format.format(bonus)); // Форматируем премию
-                }
-            }
-        });
-
-        // Настройка отображения отдела с переносом текста
+        // Перенос текста для отдела
         departmentColumn.setCellFactory(column -> new TableCell<>() {
             private final Text text = new Text();
 
@@ -106,7 +108,7 @@ public class HelloController {
             }
         });
 
-        // Настройка отображения должности с переносом текста
+        // Перенос текста для должности
         positionColumn.setCellFactory(column -> new TableCell<>() {
             private final Text text = new Text();
 
@@ -125,23 +127,67 @@ public class HelloController {
             }
         });
 
+        // Форматирование стажа
         experienceColumn.setCellValueFactory(cellData -> {
             Employee employee = cellData.getValue();
             int years = employee.getExperienceYears();
             int months = employee.getExperienceMonths();
-            String experience = years + " years " + months + " months"; // Формат для отображения
+            String experience = years + " лет " + months + " мес"; // Формат для отображения
             return new SimpleStringProperty(experience);
         });
 
-
-        // Устанавливаем действия для кнопок
-        loadButton.setOnAction(event -> loadDataFromDatabase());
-        calculateButton.setOnAction(event -> calculateBonuses());
+        // Настройка автоизменения ширины столбцов
+        autoResizeColumns();
     }
 
+    /**
+     * Инициализация сводной таблицы с именами, фамилиями и премиями сотрудников.
+     */
+    private void initializeSummaryTable() {
+        // Настройка столбцов сводной таблицы
+        summaryFirstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
+        summaryLastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
+        summaryBonusColumn.setCellValueFactory(new PropertyValueFactory<>("bonus"));
+
+        // Форматирование премии
+        summaryBonusColumn.setCellFactory(column -> new TableCell<>() {
+            private final DecimalFormat format = new DecimalFormat("#,##0.00");
+
+            @Override
+            protected void updateItem(Double bonus, boolean empty) {
+                super.updateItem(bonus, empty);
+                if (empty || bonus == null) {
+                    setText(null);
+                } else {
+                    setText(format.format(bonus));
+                }
+            }
+        });
+
+        // Установка данных для сводной таблицы
+        summaryTableView.setItems(summaryData);
+
+        // Настройка автоизменения ширины столбцов для сводной таблицы
+        summaryTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        for (TableColumn<Employee, ?> column : summaryTableView.getColumns()) {
+            column.setPrefWidth(150);
+        }
+
+        summaryTableView.widthProperty().addListener((observable, oldWidth, newWidth) -> {
+            double totalWidth = summaryTableView.getColumns().stream().mapToDouble(TableColumn::getWidth).sum();
+            double availableWidth = newWidth.doubleValue();
+
+            if (totalWidth < availableWidth) {
+                double extraSpace = (availableWidth - totalWidth) / summaryTableView.getColumns().size();
+                for (TableColumn<Employee, ?> column : summaryTableView.getColumns()) {
+                    column.setPrefWidth(column.getWidth() + extraSpace);
+                }
+            }
+        });
+    }
 
     /**
-     * Метод для автоизменения ширины столбцов.
+     * Метод для автоизменения ширины столбцов основной таблицы.
      */
     private void autoResizeColumns() {
         tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY); // Устанавливаем новую политику
@@ -167,25 +213,37 @@ public class HelloController {
      * Загрузка данных сотрудников из базы данных.
      */
     private void loadDataFromDatabase() {
+        List<Employee> employees = employeeDAO.getAllEmployees();
         employeeData.clear();
-        employeeData.addAll(employeeDAO.getAllEmployees());
+        employeeData.addAll(employees);
         tableView.setItems(employeeData);
 
-        // Обновляем ширину столбцов после загрузки данных
-        autoResizeColumns();
+        // Очистка сводной таблицы при загрузке новых данных
+        summaryData.clear();
+        summaryTableView.refresh();
     }
 
     /**
-     * Расчёт и сохранение премий сотрудников.
+     * Расчёт и сохранение премий сотрудников, а также обновление сводной таблицы.
      */
     private void calculateBonuses() {
-        for (Employee employee : employeeData) {
-            if (employee.isSelected()) { // Проверяем, выбран ли сотрудник
-                double newBonus = employee.getSalary() * 0.1;
-                employee.setBonus(newBonus);
-                employeeDAO.insertBonus(employee.getId(), 2024, newBonus); // Сохраняем премию в базе данных
-            }
+        // Список выбранных сотрудников
+        List<Employee> selectedEmployees = employeeData.stream()
+                .filter(Employee::isSelected)
+                .toList();
+
+        // Расчет и сохранение премий
+        for (Employee employee : selectedEmployees) {
+            double newBonus = employee.getSalary() * 0.1; // Рассчитываем премию как 10% от зарплаты
+            employee.setBonus(newBonus); // Устанавливаем премию
+            employeeDAO.insertBonus(employee.getId(), 2024, newBonus); // Сохраняем премию в базе данных
         }
-        tableView.refresh(); // Обновляем таблицу
+
+        // Обновление основной таблицы
+        tableView.refresh();
+
+        // Обновление сводной таблицы
+        summaryData.clear();
+        summaryData.addAll(selectedEmployees);
     }
 }

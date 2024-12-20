@@ -4,31 +4,18 @@ import javafx.beans.property.*;
 import java.time.LocalDate;
 
 public class Employee {
-    private final IntegerProperty id; // Уникальный идентификатор
-    private final StringProperty firstName; // Имя
-    private final StringProperty lastName; // Фамилия
-    private final StringProperty departmentName; // Отдел
-    private final StringProperty position; // Должность
-    private final DoubleProperty salary; // Зарплата
-    private final DoubleProperty bonus; // Премия
-    private final ObjectProperty<LocalDate> hireDate; // Дата приема на работу
-    private final BooleanProperty selected; // Выбран для операции
-    private int experienceYears; // Годы опыта
-    private int experienceMonths; // Месяцы опыта
+    private final IntegerProperty id;
+    private final StringProperty firstName;
+    private final StringProperty lastName;
+    private final StringProperty departmentName;
+    private final StringProperty position;
+    private final DoubleProperty salary;
+    private final DoubleProperty bonus;
+    private final ObjectProperty<LocalDate> hireDate;
+    private final BooleanProperty selected;
+    private int experienceYears;
+    private int experienceMonths;
 
-    /**
-     * Конструктор класса Employee
-     *
-     * @param id              Уникальный идентификатор
-     * @param firstName       Имя
-     * @param lastName        Фамилия
-     * @param departmentName  Название отдела
-     * @param position        Должность
-     * @param salary          Зарплата
-     * @param hireDate        Дата приема на работу
-     * @param experienceYears Опыт работы в годах
-     * @param experienceMonths Опыт работы в месяцах
-     */
     public Employee(int id, String firstName, String lastName, String departmentName, String position,
                     double salary, LocalDate hireDate, int experienceYears, int experienceMonths) {
         this.id = new SimpleIntegerProperty(id);
@@ -37,8 +24,8 @@ public class Employee {
         this.departmentName = new SimpleStringProperty(departmentName);
         this.position = new SimpleStringProperty(position);
         this.salary = new SimpleDoubleProperty(salary);
-        this.bonus = new SimpleDoubleProperty(0.0); // Бонус по умолчанию 0
-        this.selected = new SimpleBooleanProperty(false); // Не выбран по умолчанию
+        this.bonus = new SimpleDoubleProperty(0.0); // Инициализируем бонус как 0
+        this.selected = new SimpleBooleanProperty(false); // Инициализируем выбор как false
         this.hireDate = new SimpleObjectProperty<>(hireDate);
         this.experienceYears = experienceYears;
         this.experienceMonths = experienceMonths;

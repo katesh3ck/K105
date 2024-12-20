@@ -2,6 +2,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.geometry.Insets?>
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.course.controllers.HelloController">
 
@@ -12,27 +13,38 @@
                style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 10px;" />
     </top>
 
-    <!-- Центральная часть -->
+    <!-- Центральная часть с двумя таблицами -->
     <center>
-        <VBox spacing="10" alignment="CENTER">
-            <TableView fx:id="tableView" prefWidth="800" prefHeight="400">
-                <columns>
-                    <TableColumn fx:id="selectColumn" text="Выбрать"/>
-                    <TableColumn fx:id="idColumn" text="ID" minWidth="5" />
-                    <TableColumn fx:id="firstNameColumn" text="Имя" minWidth="25" />
-                    <TableColumn fx:id="lastNameColumn" text="Фамилия" minWidth="25" />
-                    <TableColumn fx:id="departmentColumn" text="Отдел" minWidth="25" />
-                    <TableColumn fx:id="positionColumn" text="Должность" minWidth="120" />
-                    <TableColumn fx:id="salaryColumn" text="Зарплата" minWidth="5" />
-                    <TableColumn fx:id="bonusColumn" text="Премия" minWidth="5" />
-                    <TableColumn fx:id="hireDateColumn" text="Дата найма" minWidth="9" />
-                    <TableColumn fx:id="experienceColumn" text="Стаж"/>
+        <VBox spacing="20">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10" />
+            </padding>
 
+            <!-- Основная таблица -->
+            <TableView fx:id="tableView" prefWidth="800" prefHeight="400" editable="true">
+                <columns>
+                    <TableColumn fx:id="selectColumn" text="Выбрать" prefWidth="60" />
+                    <TableColumn fx:id="idColumn" text="ID" prefWidth="50" />
+                    <TableColumn fx:id="firstNameColumn" text="Имя" prefWidth="100" />
+                    <TableColumn fx:id="lastNameColumn" text="Фамилия" prefWidth="100" />
+                    <TableColumn fx:id="departmentColumn" text="Отдел" prefWidth="100" />
+                    <TableColumn fx:id="positionColumn" text="Должность" prefWidth="120" />
+                    <TableColumn fx:id="salaryColumn" text="Зарплата" prefWidth="100" />
+                    <TableColumn fx:id="hireDateColumn" text="Дата найма" prefWidth="100" />
+                    <TableColumn fx:id="experienceColumn" text="Стаж" prefWidth="100" />
+                </columns>
+            </TableView>
+
+            <!-- Сводная таблица -->
+            <TableView fx:id="summaryTableView" prefWidth="800" prefHeight="200">
+                <columns>
+                    <TableColumn fx:id="summaryFirstNameColumn" text="Имя" prefWidth="150" />
+                    <TableColumn fx:id="summaryLastNameColumn" text="Фамилия" prefWidth="150" />
+                    <TableColumn fx:id="summaryBonusColumn" text="Премия" prefWidth="150" />
                 </columns>
             </TableView>
         </VBox>
     </center>
-
 
     <!-- Нижняя панель с кнопками -->
     <bottom>
