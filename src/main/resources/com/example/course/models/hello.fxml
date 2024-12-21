@@ -6,13 +6,19 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
+
+<?import javafx.scene.control.ChoiceBox?>
 <BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.course.controllers.HelloController">
 
     <!-- Верхняя панель -->
     <top>
         <VBox spacing="10">
             <Label text="Список сотрудников" alignment="CENTER" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 10px;" />
-            <HBox alignment="CENTER_RIGHT" style="-fx-padding: 0 20 0 0;">
+            <HBox alignment="CENTER" spacing="10">
+                <Label text="Фильтровать по:" />
+                <ChoiceBox fx:id="filterChoiceBox" />
+                <ChoiceBox fx:id="filterValueChoiceBox" />
+                <Button text="Применить фильтр" onAction="#applyFilter" />
                 <Button fx:id="selectAllButton" text="Выбрать всех сотрудников" />
             </HBox>
         </VBox>
@@ -62,3 +68,4 @@
     </bottom>
 
 </BorderPane>
+

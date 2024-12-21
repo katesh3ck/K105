@@ -43,29 +43,27 @@ public class HelloController {
     @FXML private Button calculateButton;
     @FXML private Button selectAllButton;
 
+    @FXML private ChoiceBox<String> filterChoiceBox;
+    @FXML private ChoiceBox<String> filterValueChoiceBox;
+
 
     private final ObservableList<Employee> employeeData = FXCollections.observableArrayList();
     private final ObservableList<Employee> summaryData = FXCollections.observableArrayList();
     private final EmployeeDAO employeeDAO = new EmployeeDAO();
 
-    @FXML
-    public void initialize() {
-        // Устанавливаем редактируемость таблицы
+    @FXML public void initialize() {
         tableView.setEditable(true);
+            initializeMainTable();
+            initializeSummaryTable();
 
-        // Инициализация основной таблицы
-        initializeMainTable();
+            loadButton.setOnAction(event -> loadDataFromDatabase());
+            calculateButton.setOnAction(event -> calculateBonuses());
+            selectAllButton.setOnAction(event -> selectAllEmployees());
 
-        // Инициализация сводной таблицы
-        initializeSummaryTable();
+            filterChoiceBox.setOnAction(event -> updateFilterValues());
+            filterChoiceBox.getItems().addAll("Отдел", "Должность");
 
-        // Устанавливаем действия для кнопок
-        loadButton.setOnAction(event -> loadDataFromDatabase());
-        calculateButton.setOnAction(event -> calculateBonuses());
-        selectAllButton.setOnAction(event -> selectAllEmployees()); // Действие для кнопки выбора всех сотрудников
-
-        tableView.refresh();
-    }
+            tableView.refresh(); }
 
     /**
      * Инициализация основной таблицы.
@@ -243,6 +241,54 @@ public class HelloController {
         }
         tableView.refresh();
     }
+
+    /**
+     * Обновление значений фильтра в зависимости от выбора пользователя.
+     */
+    private void updateFilterValues() {
+        filterValueChoiceBox.getItems().clear();
+        String selectedFilter = filterChoiceBox.getValue();
+        if ("Отдел".equals(selectedFilter)) {
+            // Заполняем уникальными отделами
+            employeeData.stream()
+                    .map(Employee::getDepartmentName)
+                    .distinct()
+                    .forEach(department -> filterValueChoiceBox.getItems().add(department));
+        } else if ("Должность".equals(selectedFilter)) {
+            // Заполняем уникальными должностями
+            employeeData.stream()
+                    .map(Employee::getPosition)
+                    .distinct()
+                    .forEach(position -> filterValueChoiceBox.getItems().add(position));
+        }
+    }
+
+    /**
+     * Применение фильтрации.
+     */
+    @FXML
+    private void applyFilter() {
+        String selectedFilter = filterChoiceBox.getValue();
+        String selectedValue = filterValueChoiceBox.getValue();
+        ObservableList<Employee> filteredData = FXCollections.observableArrayList();
+
+        if ("Отдел".equals(selectedFilter)) {
+            for (Employee employee : employeeData) {
+                if (employee.getDepartmentName().equals(selectedValue)) {
+                    filteredData.add(employee);
+                }
+            }
+        } else if ("Должность".equals(selectedFilter)) {
+            for (Employee employee : employeeData) {
+                if (employee.getPosition().equals(selectedValue)) {
+                    filteredData.add(employee);
+                }
+            }
+        }
+
+        tableView.setItems(filteredData);
+    }
+
 
     /**
      * Расчёт премий сотрудников только для выбранных.
