@@ -1,5 +1,6 @@
 package com.example.course.controllers;
 
+import com.example.course.managers.EmployeeManager;
 import com.example.course.models.Employee;
 import com.example.course.dao.EmployeeDAO;
 import com.example.course.utils.BonusCalculator;
@@ -32,6 +33,8 @@ public class HelloController {
     @FXML private TableColumn<Employee, String> experienceColumn;
     @FXML private TableColumn<Employee, Boolean> compensationColumn;
     @FXML private TableColumn<Employee, String> performanceColumn; // новый столбец
+    @FXML final EmployeeManager employeeManager = new EmployeeManager(); // Добавляем эту строку
+
 
     // Сводная таблица
     @FXML private TableView<Employee> summaryTableView;
@@ -42,6 +45,9 @@ public class HelloController {
     @FXML private Button loadButton;
     @FXML private Button calculateButton;
     @FXML private Button selectAllButton;
+    @FXML private Button addButton;
+    @FXML private Button editButton;
+    @FXML private Button deleteButton;
 
     @FXML private ChoiceBox<String> filterChoiceBox;
     @FXML private ChoiceBox<String> filterValueChoiceBox;
@@ -51,19 +57,27 @@ public class HelloController {
     private final ObservableList<Employee> summaryData = FXCollections.observableArrayList();
     private final EmployeeDAO employeeDAO = new EmployeeDAO();
 
-    @FXML public void initialize() {
+    @FXML
+    public void initialize() {
         tableView.setEditable(true);
-            initializeMainTable();
-            initializeSummaryTable();
 
-            loadButton.setOnAction(event -> loadDataFromDatabase());
-            calculateButton.setOnAction(event -> calculateBonuses());
-            selectAllButton.setOnAction(event -> selectAllEmployees());
+        initializeMainTable();
+        initializeSummaryTable();
 
-            filterChoiceBox.setOnAction(event -> updateFilterValues());
-            filterChoiceBox.getItems().addAll("Отдел", "Должность");
+        loadButton.setOnAction(event -> loadDataFromDatabase());
+        calculateButton.setOnAction(event -> calculateBonuses());
+        selectAllButton.setOnAction(event -> selectAllEmployees());
+        addButton.setOnAction(event -> employeeManager.addEmployee(employeeData)); // Добавляем обработчик для добавления
+        editButton.setOnAction(event -> employeeManager.editEmployee(tableView.getSelectionModel().getSelectedItem(), employeeData)); // Добавляем обработчик для редактирования
+        deleteButton.setOnAction(event -> employeeManager.deleteEmployee(tableView.getSelectionModel().getSelectedItem(), employeeData)); // Добавляем обработчик для удаления
 
-            tableView.refresh(); }
+        filterChoiceBox.setItems(FXCollections.observableArrayList("Отдел", "Должность"));
+        filterChoiceBox.setOnAction(event -> updateFilterValues());
+
+        tableView.refresh();
+    }
+
+
 
     /**
      * Инициализация основной таблицы.
@@ -290,6 +304,35 @@ public class HelloController {
 
         tableView.setItems(filteredData);
     }
+
+    @FXML
+    private void addEmployeeAction() {
+        employeeManager.addEmployee(employeeData);
+    }
+
+    @FXML
+    private void editEmployeeAction() {
+        Employee selectedEmployee = tableView.getSelectionModel().getSelectedItem();
+        if (selectedEmployee != null) {
+            employeeManager.editEmployee(selectedEmployee, employeeData);
+        } else {
+            showError("Сообщение", "Пожалуйста, выберите сотрудника для редактирования."); // Используем showError
+        }
+    }
+
+    @FXML
+    private void deleteEmployeeAction() {
+        System.out.println("deleteEmployeeAction called"); // Временное сообщение для отладки
+        Employee selectedEmployee = tableView.getSelectionModel().getSelectedItem();
+        if (selectedEmployee != null) {
+            employeeManager.deleteEmployee(selectedEmployee, employeeData);
+        } else {
+            showError("Сообщение", "Пожалуйста, выберите сотрудника для удаления.");
+        }
+    }
+
+
+
 
 
     /**

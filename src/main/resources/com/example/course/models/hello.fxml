@@ -8,6 +8,7 @@
 <?import javafx.scene.control.TableColumn?>
 
 <?import javafx.scene.control.ChoiceBox?>
+
 <BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.course.controllers.HelloController">
 
     <!-- Верхняя панель -->
@@ -56,6 +57,13 @@
                     <TableColumn fx:id="summaryBonusColumn" text="Премия" prefWidth="150" />
                 </columns>
             </TableView>
+
+            <!-- Кнопки для взаимодействия -->
+            <HBox spacing="10" alignment="CENTER">
+                <Button fx:id="addButton" text="Добавить" onAction="#addEmployeeAction" />
+                <Button fx:id="editButton" text="Редактировать" onAction="#editEmployeeAction" />
+                <Button fx:id="deleteButton" text="Удалить" onAction="#deleteEmployeeAction" />
+            </HBox>
         </VBox>
     </center>
 
@@ -68,4 +76,3 @@
     </bottom>
 
 </BorderPane>
-

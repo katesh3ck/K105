@@ -10,4 +10,5 @@ module com.example.course {
     opens com.example.course.models to javafx.base;
     opens com.example.course.controllers to javafx.fxml;
     opens com.example.course.utils to javafx.base;
+    opens com.example.course.managers to javafx.base;
 }

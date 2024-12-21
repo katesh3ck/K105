@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EmployeeDAO {
+public class EmployeeDAO { // Сделаем класс public
 
     /**
      * Получение всех сотрудников из базы данных.
@@ -16,8 +16,8 @@ public class EmployeeDAO {
      */
     public List<Employee> getAllEmployees() {
         List<Employee> employees = new ArrayList<>();
-        String query = "SELECT e.id, e.first_name, e.last_name, d.name AS department_name, " +
-                "d.description AS position, e.salary, e.hire_date, e.experience_years, e.experience_months " +
+        String query = "SELECT e.id, e.first_name, e.last_name, d.name AS department_name, d.description AS position, " +
+                "e.salary, e.hire_date, e.experience_years, e.experience_months, e.performance_rating " +
                 "FROM employees e " +
                 "JOIN departments d ON e.department_id = d.id";
 
@@ -30,11 +30,12 @@ public class EmployeeDAO {
                 String firstName = resultSet.getString("first_name");
                 String lastName = resultSet.getString("last_name");
                 String departmentName = resultSet.getString("department_name");
-                String position = resultSet.getString("position");
+                String position = resultSet.getString("position"); // Используем description как должность
                 double salary = resultSet.getDouble("salary");
                 LocalDate hireDate = resultSet.getDate("hire_date").toLocalDate();
                 int experienceYears = resultSet.getInt("experience_years");
                 int experienceMonths = resultSet.getInt("experience_months");
+                String performance = resultSet.getString("performance_rating");
 
                 employees.add(new Employee(id, firstName, lastName, departmentName, position, salary, hireDate, experienceYears, experienceMonths));
             }
@@ -46,34 +47,66 @@ public class EmployeeDAO {
         return employees;
     }
 
+
+
+
     /**
      * Добавление нового сотрудника в базу данных.
      *
      * @param employee Объект Employee, который нужно добавить.
      */
     public void insertEmployee(Employee employee) {
-        String query = "INSERT INTO employees (first_name, last_name, department_id, salary, hire_date, experience_years, experience_months) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO employees (first_name, last_name, department_id, salary, hire_date, experience_years, experience_months, performance_rating) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+             PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setString(1, employee.getFirstName());
             statement.setString(2, employee.getLastName());
-            // Здесь предполагается, что department_id уже известен:
             statement.setInt(3, getDepartmentIdByName(employee.getDepartmentName(), connection));
             statement.setDouble(4, employee.getSalary());
             statement.setDate(5, Date.valueOf(employee.getHireDate()));
             statement.setInt(6, employee.getExperienceYears());
             statement.setInt(7, employee.getExperienceMonths());
+            statement.setString(8, employee.getPerformance());
 
             statement.executeUpdate();
+
+            // Получение автоматически назначенного ID
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    int id = generatedKeys.getInt(1);
+                    employee.setId(id);
+                    System.out.println("Assigned ID: " + id); // Для отладки
+                }
+            }
+
             System.out.println("Сотрудник успешно добавлен: " + employee.getFirstName() + " " + employee.getLastName());
         } catch (SQLException e) {
             System.err.println("Ошибка при добавлении сотрудника: " + e.getMessage());
             throw new RuntimeException("Не удалось добавить сотрудника", e);
         }
     }
+
+
+
+
+    public int getLastInsertedId() {
+        try (Connection connection = DatabaseConnection.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("SELECT LASTVAL()")) {
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            } else {
+                throw new SQLException("Не удалось получить последний вставленный ID.");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка при получении последнего вставленного ID", e);
+        }
+    }
+
 
     /**
      * Обновление стажа сотрудника.
@@ -136,6 +169,54 @@ public class EmployeeDAO {
             throw new RuntimeException("Не удалось вставить премию", e);
         }
     }
+
+    /**
+     * Обновление данных сотрудника в базе данных.
+     */
+    public void updateEmployee(Employee employee) {
+        String sql = "UPDATE employees SET first_name = ?, last_name = ?, department_id = ?, salary = ?, hire_date = ?, experience_years = ?, experience_months = ?, performance_rating = ? WHERE id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, employee.getFirstName());
+            pstmt.setString(2, employee.getLastName());
+            pstmt.setInt(3, getDepartmentIdByName(employee.getDepartmentName(), conn));
+            pstmt.setDouble(4, employee.getSalary());
+            pstmt.setDate(5, java.sql.Date.valueOf(employee.getHireDate()));
+            pstmt.setInt(6, employee.getExperienceYears());
+            pstmt.setInt(7, employee.getExperienceMonths());
+            pstmt.setString(8, employee.getPerformance());
+            pstmt.setInt(9, employee.getId());
+
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+    /**
+     * Удаление сотрудника из базы данных.
+     */
+    public void deleteEmployee(int employeeId) {
+        String sql = "DELETE FROM employees WHERE id = ?";
+        System.out.println("SQL: " + sql + " with employeeId: " + employeeId); // Временное сообщение для отладки
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, employeeId);
+            int rowsAffected = pstmt.executeUpdate();
+            System.out.println("Rows affected: " + rowsAffected); // Временное сообщение для отладки
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     /**
      * Получение ID отдела по названию.

@@ -41,6 +41,29 @@ public class Employee {
         this.performance = new SimpleStringProperty("средний уровень"); // Значение по умолчанию
     }
 
+
+    // Конструктор для новых сотрудников
+    public Employee(String firstName, String lastName, String departmentName, String position,
+                    double salary, LocalDate hireDate, int experienceYears, int experienceMonths) {
+        this.id = new SimpleIntegerProperty();
+        this.firstName = new SimpleStringProperty(firstName);
+        this.lastName = new SimpleStringProperty(lastName);
+        this.departmentName = new SimpleStringProperty(departmentName);
+        this.position = new SimpleStringProperty(position);
+        this.salary = new SimpleDoubleProperty(salary);
+        this.bonus = new SimpleDoubleProperty(0.0);
+        this.selected = new SimpleBooleanProperty(false);
+        this.hireDate = new SimpleObjectProperty<>(hireDate);
+        this.experienceYears = experienceYears;
+        this.experienceMonths = experienceMonths;
+        this.compensationType = new SimpleStringProperty("Не выбрано");
+        this.compensationHours = new SimpleIntegerProperty(0);
+        this.nightHours = new SimpleIntegerProperty(0);
+        this.holidayHours = new SimpleIntegerProperty(0);
+        this.performance = new SimpleStringProperty("средний уровень");
+    }
+
+
     // Геттеры и сеттеры для новых полей
 
     public String getPerformance() { return performance.get(); }
