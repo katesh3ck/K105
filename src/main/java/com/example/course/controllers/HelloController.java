@@ -236,11 +236,13 @@ public class HelloController {
      * Выбор всех сотрудников в таблице.
      */
     private void selectAllEmployees() {
-        for (Employee employee : employeeData) {
+        ObservableList<Employee> currentData = tableView.getItems();
+        for (Employee employee : currentData) {
             employee.setSelected(true);
         }
         tableView.refresh();
     }
+
 
     /**
      * Обновление значений фильтра в зависимости от выбора пользователя.
