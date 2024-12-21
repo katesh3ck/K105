@@ -2,6 +2,7 @@ package com.example.course.controllers;
 
 import com.example.course.models.Employee;
 import com.example.course.dao.EmployeeDAO;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -28,6 +29,8 @@ public class HelloController {
     @FXML private TableColumn<Employee, Double> salaryColumn;
     @FXML private TableColumn<Employee, LocalDate> hireDateColumn;
     @FXML private TableColumn<Employee, String> experienceColumn;
+    @FXML private TableColumn<Employee, String> compensationColumn;
+
 
     // Сводная таблица
     @FXML private TableView<Employee> summaryTableView;
@@ -136,9 +139,64 @@ public class HelloController {
             return new SimpleStringProperty(experience);
         });
 
+        // Добавление столбца компенсаций
+        compensationColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getCompensationType()));
+        compensationColumn.setCellFactory(column -> new TableCell<>() {
+            private final ComboBox<String> comboBox = new ComboBox<>();
+
+            {
+                comboBox.getItems().addAll("Не выбрано", "Работа в ночное время", "Работа в праздники");
+                comboBox.setOnAction(event -> {
+                    Employee employee = getTableView().getItems().get(getIndex());
+                    String selectedCompensation = comboBox.getValue();
+                    employee.setCompensationType(selectedCompensation);
+
+                    // Открытие окна для ввода часов
+                    if ("Работа в ночное время".equals(selectedCompensation) || "Работа в праздники".equals(selectedCompensation)) {
+                        TextInputDialog dialog = new TextInputDialog();
+                        dialog.setTitle("Ввод часов");
+                        dialog.setHeaderText("Введите количество часов для " + selectedCompensation);
+                        dialog.setContentText("Часы:");
+                        dialog.showAndWait().ifPresent(hours -> {
+                            try {
+                                int hoursWorked = Integer.parseInt(hours);
+                                employee.setCompensationHours(hoursWorked);
+                            } catch (NumberFormatException e) {
+                                showError("Ошибка", "Введите корректное количество часов.");
+                            }
+                        });
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    comboBox.setValue(item);
+                    setGraphic(comboBox);
+                }
+            }
+        });
+
         // Настройка автоизменения ширины столбцов
         autoResizeColumns();
     }
+
+    private void showError(String title, String message) {
+        // Создание диалогового окна с сообщением об ошибке
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title); // Заголовок окна
+        alert.setHeaderText(null); // Без заголовка
+        alert.setContentText(message); // Текст сообщения
+
+        // Отображение диалогового окна
+        alert.showAndWait();
+    }
+
+
 
     /**
      * Инициализация сводной таблицы с именами, фамилиями и премиями сотрудников.
@@ -226,24 +284,25 @@ public class HelloController {
     /**
      * Расчёт и сохранение премий сотрудников, а также обновление сводной таблицы.
      */
+
     private void calculateBonuses() {
-        // Список выбранных сотрудников
-        List<Employee> selectedEmployees = employeeData.stream()
-                .filter(Employee::isSelected)
-                .toList();
+        // Расчет бонусов с учетом компенсаций
+        for (Employee employee : employeeData) {
+            double compensationBonus = 0;
+            if ("Работа в ночное время".equals(employee.getCompensationType())) {
+                compensationBonus += employee.getCompensationHours() * 200; // Например, 200 руб/час за ночные смены
+            }
+            if ("Работа в праздники".equals(employee.getCompensationType())) {
+                compensationBonus += employee.getCompensationHours() * 300; // Например, 300 руб/час за праздничные смены
+            }
+            double totalBonus = employee.getSalary() * 0.1 + compensationBonus;
+            employee.setBonus(totalBonus);
 
-        // Расчет и сохранение премий
-        for (Employee employee : selectedEmployees) {
-            double newBonus = employee.getSalary() * 0.1; // Рассчитываем премию как 10% от зарплаты
-            employee.setBonus(newBonus); // Устанавливаем премию
-            employeeDAO.insertBonus(employee.getId(), 2024, newBonus); // Сохраняем премию в базе данных
+            // Сохранение в базу данных
+            employeeDAO.insertBonus(employee.getId(), 2024, totalBonus);
         }
-
-        // Обновление основной таблицы
         tableView.refresh();
-
-        // Обновление сводной таблицы
-        summaryData.clear();
-        summaryData.addAll(selectedEmployees);
     }
+
+
 }

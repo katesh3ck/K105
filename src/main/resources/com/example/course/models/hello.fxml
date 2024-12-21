@@ -32,6 +32,7 @@
                     <TableColumn fx:id="salaryColumn" text="Зарплата" prefWidth="100" />
                     <TableColumn fx:id="hireDateColumn" text="Дата найма" prefWidth="100" />
                     <TableColumn fx:id="experienceColumn" text="Стаж" prefWidth="100" />
+                    <TableColumn fx:id="compensationColumn" text="Компенсации" prefWidth="150" />
                 </columns>
             </TableView>
 

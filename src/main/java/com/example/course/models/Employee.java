@@ -13,6 +13,8 @@ public class Employee {
     private final DoubleProperty bonus;
     private final ObjectProperty<LocalDate> hireDate;
     private final BooleanProperty selected;
+    private final StringProperty compensationType;
+    private final IntegerProperty compensationHours;
     private int experienceYears;
     private int experienceMonths;
 
@@ -29,9 +31,35 @@ public class Employee {
         this.hireDate = new SimpleObjectProperty<>(hireDate);
         this.experienceYears = experienceYears;
         this.experienceMonths = experienceMonths;
+        this.compensationType = new SimpleStringProperty("Не выбрано");
+        this.compensationHours = new SimpleIntegerProperty(0);
     }
 
     // Геттеры и сеттеры для всех полей
+
+    public String getCompensationType() {
+        return compensationType.get();
+    }
+
+    public void setCompensationType(String compensationType) {
+        this.compensationType.set(compensationType);
+    }
+
+    public StringProperty compensationTypeProperty() {
+        return compensationType;
+    }
+
+    public int getCompensationHours() {
+        return compensationHours.get();
+    }
+
+    public void setCompensationHours(int compensationHours) {
+        this.compensationHours.set(compensationHours);
+    }
+
+    public IntegerProperty compensationHoursProperty() {
+        return compensationHours;
+    }
 
     public int getId() {
         return id.get();
