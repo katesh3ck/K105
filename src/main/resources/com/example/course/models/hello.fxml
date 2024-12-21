@@ -1,13 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
 <?import javafx.geometry.Insets?>
-
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
 <BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.course.controllers.HelloController">
 
     <!-- Верхняя панель -->
     <top>
-        <Label text="Список сотрудников" alignment="CENTER" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 10px;" />
+        <VBox spacing="10">
+            <Label text="Список сотрудников" alignment="CENTER" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 10px;" />
+            <HBox alignment="CENTER_RIGHT" style="-fx-padding: 0 20 0 0;">
+                <Button fx:id="selectAllButton" text="Выбрать всех сотрудников" />
+            </HBox>
+        </VBox>
     </top>
 
     <!-- Центральная часть с двумя таблицами -->
@@ -30,7 +38,6 @@
                     <TableColumn fx:id="hireDateColumn" text="Дата найма" prefWidth="100" />
                     <TableColumn fx:id="experienceColumn" text="Стаж" prefWidth="100" />
                     <TableColumn fx:id="compensationColumn" text="Компенсации" prefWidth="150" />
-                    <!-- Новая колонка для производительности -->
                     <TableColumn fx:id="performanceColumn" text="Производительность" prefWidth="150" />
                 </columns>
             </TableView>

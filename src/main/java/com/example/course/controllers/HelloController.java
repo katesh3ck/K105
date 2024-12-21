@@ -41,6 +41,8 @@ public class HelloController {
 
     @FXML private Button loadButton;
     @FXML private Button calculateButton;
+    @FXML private Button selectAllButton;
+
 
     private final ObservableList<Employee> employeeData = FXCollections.observableArrayList();
     private final ObservableList<Employee> summaryData = FXCollections.observableArrayList();
@@ -60,6 +62,7 @@ public class HelloController {
         // Устанавливаем действия для кнопок
         loadButton.setOnAction(event -> loadDataFromDatabase());
         calculateButton.setOnAction(event -> calculateBonuses());
+        selectAllButton.setOnAction(event -> selectAllEmployees()); // Действие для кнопки выбора всех сотрудников
 
         tableView.refresh();
     }
@@ -176,6 +179,7 @@ public class HelloController {
                 }).orElse(0);
             }
 
+
             @Override
             protected void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
@@ -229,12 +233,17 @@ public class HelloController {
         summaryTableView.refresh();
     }
 
+
     /**
-     * Расчёт премий сотрудников.
+     * Выбор всех сотрудников в таблице.
      */
-    /**
-     * Расчёт премий сотрудников.
-     */
+    private void selectAllEmployees() {
+        for (Employee employee : employeeData) {
+            employee.setSelected(true);
+        }
+        tableView.refresh();
+    }
+
     /**
      * Расчёт премий сотрудников только для выбранных.
      */
