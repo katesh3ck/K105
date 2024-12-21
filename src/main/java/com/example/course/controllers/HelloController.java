@@ -100,49 +100,57 @@ public class HelloController {
         });
 
         // Добавление столбца компенсаций
-        // Добавление столбца компенсаций
-        // Добавление столбца компенсаций
         compensationColumn.setCellFactory(column -> new TableCell<>() {
             private final VBox vbox = new VBox();
             private final CheckBox nightCheckBox = new CheckBox("Работа в ночное время");
             private final CheckBox holidayCheckBox = new CheckBox("Работа в праздники");
 
             {
-                nightCheckBox.setOnAction(event -> updateCompensation());
-                holidayCheckBox.setOnAction(event -> updateCompensation());
+                nightCheckBox.setOnAction(event -> updateCompensation(employee -> {
+                    if (nightCheckBox.isSelected()) {
+                        employee.setNightHours(showHoursDialog("ночное время"));
+                    } else {
+                        employee.setNightHours(0);
+                    }
+                }));
+                holidayCheckBox.setOnAction(event -> updateCompensation(employee -> {
+                    if (holidayCheckBox.isSelected()) {
+                        employee.setHolidayHours(showHoursDialog("праздники"));
+                    } else {
+                        employee.setHolidayHours(0);
+                    }
+                }));
             }
 
-            private void updateCompensation() {
+            private void updateCompensation(java.util.function.Consumer<Employee> updateAction) {
                 Employee employee = getTableView().getItems().get(getIndex());
+                updateAction.accept(employee);
                 StringBuilder compensation = new StringBuilder();
-                if (nightCheckBox.isSelected()) {
+                if (employee.getNightHours() > 0) {
                     compensation.append("Работа в ночное время;");
-                    showHoursDialog(employee);
                 }
-                if (holidayCheckBox.isSelected()) {
+                if (employee.getHolidayHours() > 0) {
                     compensation.append("Работа в праздники;");
-                    showHoursDialog(employee);
                 }
                 employee.setCompensationType(compensation.toString());
             }
 
-            private void showHoursDialog(Employee employee) {
+            private int showHoursDialog(String type) {
                 TextInputDialog dialog = new TextInputDialog();
                 dialog.setTitle("Ввод часов");
-                dialog.setHeaderText("Введите количество часов для компенсации");
+                dialog.setHeaderText("Введите количество часов для компенсации за " + type);
                 dialog.setContentText("Часы:");
 
-                dialog.showAndWait().ifPresent(hours -> {
+                return dialog.showAndWait().map(hours -> {
                     try {
                         int hoursWorked = Integer.parseInt(hours);
                         if (hoursWorked < 0) throw new NumberFormatException();
-                        employee.setCompensationHours(hoursWorked);
+                        return hoursWorked;
                     } catch (NumberFormatException e) {
                         showError("Ошибка", "Введите корректное количество часов (положительное число).");
-                        nightCheckBox.setSelected(false);
-                        holidayCheckBox.setSelected(false);
+                        return 0;
                     }
-                });
+                }).orElse(0);
             }
 
             @Override
@@ -152,15 +160,13 @@ public class HelloController {
                     setGraphic(null);
                 } else {
                     Employee employee = getTableView().getItems().get(getIndex());
-                    nightCheckBox.setSelected(employee.getCompensationType().contains("Работа в ночное время"));
-                    holidayCheckBox.setSelected(employee.getCompensationType().contains("Работа в праздники"));
+                    nightCheckBox.setSelected(employee.getNightHours() > 0);
+                    holidayCheckBox.setSelected(employee.getHolidayHours() > 0);
                     vbox.getChildren().setAll(nightCheckBox, holidayCheckBox);
                     setGraphic(vbox);
                 }
             }
         });
-
-
 
         tableView.setItems(employeeData);
     }
@@ -207,8 +213,9 @@ public class HelloController {
         summaryData.clear();
 
         for (Employee employee : employeeData) {
-            double compensationBonus = employee.getCompensationHours() * 0.01; // Пример расчёта
-            double totalBonus = employee.getSalary() * 0.1 + compensationBonus;
+            double nightWorkBonus = employee.getNightHours() * employee.getSalary() * 0.03;
+            double holidayWorkBonus = employee.getHolidayHours() * employee.getSalary() * 0.02;
+            double totalBonus = employee.getSalary() * 0.1 + nightWorkBonus + holidayWorkBonus;
             employee.setBonus(totalBonus);
 
             summaryData.add(employee);
