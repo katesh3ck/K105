@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import java.text.DecimalFormat;
@@ -140,33 +141,23 @@ public class HelloController {
         });
 
         // Добавление столбца компенсаций
-        compensationColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getCompensationType()));
+
         compensationColumn.setCellFactory(column -> new TableCell<>() {
-            private final ComboBox<String> comboBox = new ComboBox<>();
+            private final VBox vbox = new VBox();
+            private final CheckBox nightCheckBox = new CheckBox("Работа в ночное время");
+            private final CheckBox holidayCheckBox = new CheckBox("Работа в праздники");
 
             {
-                comboBox.getItems().addAll("Не выбрано", "Работа в ночное время", "Работа в праздники");
-                comboBox.setOnAction(event -> {
-                    Employee employee = getTableView().getItems().get(getIndex());
-                    String selectedCompensation = comboBox.getValue();
-                    employee.setCompensationType(selectedCompensation);
+                nightCheckBox.setOnAction(event -> updateCompensation());
+                holidayCheckBox.setOnAction(event -> updateCompensation());
+            }
 
-                    // Открытие окна для ввода часов
-                    if ("Работа в ночное время".equals(selectedCompensation) || "Работа в праздники".equals(selectedCompensation)) {
-                        TextInputDialog dialog = new TextInputDialog();
-                        dialog.setTitle("Ввод часов");
-                        dialog.setHeaderText("Введите количество часов для " + selectedCompensation);
-                        dialog.setContentText("Часы:");
-                        dialog.showAndWait().ifPresent(hours -> {
-                            try {
-                                int hoursWorked = Integer.parseInt(hours);
-                                employee.setCompensationHours(hoursWorked);
-                            } catch (NumberFormatException e) {
-                                showError("Ошибка", "Введите корректное количество часов.");
-                            }
-                        });
-                    }
-                });
+            private void updateCompensation() {
+                Employee employee = getTableView().getItems().get(getIndex());
+                StringBuilder compensation = new StringBuilder();
+                if (nightCheckBox.isSelected()) compensation.append("Работа в ночное время;");
+                if (holidayCheckBox.isSelected()) compensation.append("Работа в праздники;");
+                employee.setCompensationType(compensation.toString());
             }
 
             @Override
@@ -175,11 +166,15 @@ public class HelloController {
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    comboBox.setValue(item);
-                    setGraphic(comboBox);
+                    Employee employee = getTableView().getItems().get(getIndex());
+                    nightCheckBox.setSelected(employee.getCompensationType().contains("Работа в ночное время"));
+                    holidayCheckBox.setSelected(employee.getCompensationType().contains("Работа в праздники"));
+                    vbox.getChildren().setAll(nightCheckBox, holidayCheckBox);
+                    setGraphic(vbox);
                 }
             }
         });
+
 
         // Настройка автоизменения ширины столбцов
         autoResizeColumns();
@@ -286,23 +281,31 @@ public class HelloController {
      */
 
     private void calculateBonuses() {
-        // Расчет бонусов с учетом компенсаций
+        // Очистка старых данных
+        summaryData.clear();
+
         for (Employee employee : employeeData) {
             double compensationBonus = 0;
-            if ("Работа в ночное время".equals(employee.getCompensationType())) {
-                compensationBonus += employee.getCompensationHours() * 200; // Например, 200 руб/час за ночные смены
+            if (employee.getCompensationType().contains("Работа в ночное время")) {
+                compensationBonus += employee.getCompensationHours() * 200;
             }
-            if ("Работа в праздники".equals(employee.getCompensationType())) {
-                compensationBonus += employee.getCompensationHours() * 300; // Например, 300 руб/час за праздничные смены
+            if (employee.getCompensationType().contains("Работа в праздники")) {
+                compensationBonus += employee.getCompensationHours() * 300;
             }
             double totalBonus = employee.getSalary() * 0.1 + compensationBonus;
             employee.setBonus(totalBonus);
 
+            // Добавление данных в сводную таблицу
+            summaryData.add(employee);
+
             // Сохранение в базу данных
             employeeDAO.insertBonus(employee.getId(), 2024, totalBonus);
         }
-        tableView.refresh();
+
+        // Обновление сводной таблицы
+        summaryTableView.refresh();
     }
+
 
 
 }
