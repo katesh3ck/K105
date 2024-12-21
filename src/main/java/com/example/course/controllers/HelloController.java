@@ -231,21 +231,58 @@ public class HelloController {
     /**
      * Расчёт премий сотрудников.
      */
+    /**
+     * Расчёт премий сотрудников.
+     */
+    /**
+     * Расчёт премий сотрудников только для выбранных.
+     */
     private void calculateBonuses() {
         summaryData.clear();
 
         for (Employee employee : employeeData) {
-            double nightWorkBonus = employee.getNightHours() * employee.getSalary() * 0.03;
-            double holidayWorkBonus = employee.getHolidayHours() * employee.getSalary() * 0.02;
-            double totalBonus = employee.getSalary() * 0.1 + nightWorkBonus + holidayWorkBonus;
-            employee.setBonus(totalBonus);
+            if (employee.isSelected()) { // Проверяем, выбран ли сотрудник
+                double baseBonus = employee.getSalary() * 0.07; // Базовая премия 7%
 
-            summaryData.add(employee);
-            employeeDAO.insertBonus(employee.getId(), 2024, totalBonus);
+                // Коэффициент стажа
+                int experienceYears = employee.getExperienceYears();
+                double experienceBonus = (experienceYears / 2) * employee.getSalary() * 0.02; // 2% за каждые 2 года
+
+                // Коэффициент производительности
+                double performanceCoefficient;
+                switch (employee.getPerformance()) {
+                    case "низкий уровень":
+                        performanceCoefficient = -0.01; // уменьшение на 1%
+                        break;
+                    case "средний уровень":
+                        performanceCoefficient = 0.00; // без изменений
+                        break;
+                    case "высокий уровень":
+                        performanceCoefficient = 0.02; // увеличение на 2%
+                        break;
+                    default:
+                        performanceCoefficient = 0.00; // на случай, если значение не выбрано
+                        break;
+                }
+                double performanceBonus = employee.getSalary() * performanceCoefficient;
+
+                // Коэффициент компенсации
+                double nightWorkBonus = employee.getNightHours() * employee.getSalary() * 0.002; // 0.2% за каждый час ночной работы
+                double holidayWorkBonus = employee.getHolidayHours() * employee.getSalary() * 0.001; // 0.1% за праздники
+
+                // Общая премия
+                double totalBonus = baseBonus + experienceBonus + performanceBonus + nightWorkBonus + holidayWorkBonus;
+                employee.setBonus(totalBonus);
+
+                summaryData.add(employee);
+                employeeDAO.insertBonus(employee.getId(), 2024, totalBonus);
+            }
         }
 
         summaryTableView.refresh();
     }
+
+
 
     private void showError(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
