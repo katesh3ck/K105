@@ -8,9 +8,9 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -30,6 +30,7 @@ public class HelloController {
     @FXML private TableColumn<Employee, LocalDate> hireDateColumn;
     @FXML private TableColumn<Employee, String> experienceColumn;
     @FXML private TableColumn<Employee, Boolean> compensationColumn;
+    @FXML private TableColumn<Employee, String> performanceColumn; // новый столбец
 
     // Сводная таблица
     @FXML private TableView<Employee> summaryTableView;
@@ -46,6 +47,9 @@ public class HelloController {
 
     @FXML
     public void initialize() {
+        // Устанавливаем редактируемость таблицы
+        tableView.setEditable(true);
+
         // Инициализация основной таблицы
         initializeMainTable();
 
@@ -63,6 +67,24 @@ public class HelloController {
      * Инициализация основной таблицы.
      */
     private void initializeMainTable() {
+
+        // Создаем список с элементами для ComboBox
+        ObservableList<String> performanceLevels = FXCollections.observableArrayList(
+                "низкий уровень", "средний уровень", "высокий уровень"
+        );
+
+        performanceColumn.setCellValueFactory(cellData -> cellData.getValue().performanceProperty());
+        performanceColumn.setCellFactory(ComboBoxTableCell.forTableColumn(performanceLevels));
+        performanceColumn.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            String newPerformance = event.getNewValue();
+            if (newPerformance == null || newPerformance.isEmpty()) {
+                employee.setPerformance("средний уровень");
+            } else {
+                employee.setPerformance(newPerformance);
+            }
+        });
+
         // Настройка столбца с чекбоксом
         selectColumn.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
         selectColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectColumn));

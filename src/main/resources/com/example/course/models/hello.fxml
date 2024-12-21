@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <?import javafx.geometry.Insets?>
-<BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.course.controllers.HelloController">
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.course.controllers.HelloController">
 
     <!-- Верхняя панель -->
     <top>
-        <Label text="Список сотрудников"
-               alignment="CENTER"
-               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 10px;" />
+        <Label text="Список сотрудников" alignment="CENTER" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 10px;" />
     </top>
 
     <!-- Центральная часть с двумя таблицами -->
@@ -33,6 +30,8 @@
                     <TableColumn fx:id="hireDateColumn" text="Дата найма" prefWidth="100" />
                     <TableColumn fx:id="experienceColumn" text="Стаж" prefWidth="100" />
                     <TableColumn fx:id="compensationColumn" text="Компенсации" prefWidth="150" />
+                    <!-- Новая колонка для производительности -->
+                    <TableColumn fx:id="performanceColumn" text="Производительность" prefWidth="150" />
                 </columns>
             </TableView>
 

@@ -17,6 +17,7 @@ public class Employee {
     private final IntegerProperty compensationHours; // Общие часы
     private final IntegerProperty nightHours;        // Часы ночной работы
     private final IntegerProperty holidayHours;      // Часы работы в праздники
+    private final SimpleStringProperty performance;
     private int experienceYears;
     private int experienceMonths;
 
@@ -37,9 +38,15 @@ public class Employee {
         this.compensationHours = new SimpleIntegerProperty(0);
         this.nightHours = new SimpleIntegerProperty(0);
         this.holidayHours = new SimpleIntegerProperty(0);
+        this.performance = new SimpleStringProperty("средний уровень"); // Значение по умолчанию
     }
 
     // Геттеры и сеттеры для новых полей
+
+    public String getPerformance() { return performance.get(); }
+    public SimpleStringProperty performanceProperty() { return performance; }
+    public void setPerformance(String performance) { this.performance.set(performance); }
+
     public int getNightHours() {
         return nightHours.get();
     }
