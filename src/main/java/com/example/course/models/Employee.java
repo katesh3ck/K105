@@ -14,7 +14,9 @@ public class Employee {
     private final ObjectProperty<LocalDate> hireDate;
     private final BooleanProperty selected;
     private final StringProperty compensationType;
-    private final IntegerProperty compensationHours;
+    private final IntegerProperty compensationHours; // Общие часы
+    private final IntegerProperty nightHours;        // Часы ночной работы
+    private final IntegerProperty holidayHours;      // Часы работы в праздники
     private int experienceYears;
     private int experienceMonths;
 
@@ -26,14 +28,42 @@ public class Employee {
         this.departmentName = new SimpleStringProperty(departmentName);
         this.position = new SimpleStringProperty(position);
         this.salary = new SimpleDoubleProperty(salary);
-        this.bonus = new SimpleDoubleProperty(0.0); // Инициализируем бонус как 0
-        this.selected = new SimpleBooleanProperty(false); // Инициализируем выбор как false
+        this.bonus = new SimpleDoubleProperty(0.0);
+        this.selected = new SimpleBooleanProperty(false);
         this.hireDate = new SimpleObjectProperty<>(hireDate);
         this.experienceYears = experienceYears;
         this.experienceMonths = experienceMonths;
         this.compensationType = new SimpleStringProperty("Не выбрано");
         this.compensationHours = new SimpleIntegerProperty(0);
+        this.nightHours = new SimpleIntegerProperty(0);
+        this.holidayHours = new SimpleIntegerProperty(0);
     }
+
+    // Геттеры и сеттеры для новых полей
+    public int getNightHours() {
+        return nightHours.get();
+    }
+
+    public void setNightHours(int nightHours) {
+        this.nightHours.set(nightHours);
+    }
+
+    public IntegerProperty nightHoursProperty() {
+        return nightHours;
+    }
+
+    public int getHolidayHours() {
+        return holidayHours.get();
+    }
+
+    public void setHolidayHours(int holidayHours) {
+        this.holidayHours.set(holidayHours);
+    }
+
+    public IntegerProperty holidayHoursProperty() {
+        return holidayHours;
+    }
+
 
     // Геттеры и сеттеры для всех полей
 
