@@ -9,7 +9,7 @@
 
 <?import javafx.scene.control.ChoiceBox?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.course.controllers.HelloController">
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.course.controllers.HelloController" stylesheets="@styles.css">
 
     <!-- Верхняя панель -->
     <top>
@@ -66,6 +66,8 @@
             </HBox>
         </VBox>
     </center>
+
+
 
     <!-- Нижняя панель с кнопками -->
     <bottom>
