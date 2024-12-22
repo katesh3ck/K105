@@ -4,6 +4,7 @@ import com.example.course.managers.EmployeeManager;
 import com.example.course.models.Employee;
 import com.example.course.dao.EmployeeDAO;
 import com.example.course.utils.BonusCalculator;
+import com.example.course.utils.BonusDocumentGenerator;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,6 +17,7 @@ import javafx.scene.layout.VBox;
 
 import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -380,6 +382,8 @@ public class HelloController {
     private void calculateBonuses() {
         summaryData.clear();
         BonusCalculator bonusCalculator = new BonusCalculator();
+        BonusDocumentGenerator documentGenerator = new BonusDocumentGenerator();
+        List<Employee> selectedEmployees = new ArrayList<>();
 
         for (Employee employee : employeeData) {
             if (employee.isSelected()) { // Проверяем, выбран ли сотрудник
@@ -389,11 +393,17 @@ public class HelloController {
 
                 summaryData.add(employee);
                 employeeDAO.insertBonus(employee.getId(), 2024, totalBonus);
+                selectedEmployees.add(employee);
             }
         }
 
+        // Генерация документа для всех выбранных сотрудников
+        documentGenerator.generateBonusDocument(selectedEmployees);
+
         summaryTableView.refresh();
     }
+
+
 
 
 
