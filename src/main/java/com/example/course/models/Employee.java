@@ -11,6 +11,7 @@ public class Employee {
     private final StringProperty position;
     private final DoubleProperty salary;
     private final DoubleProperty bonus;
+    private final DoubleProperty salaryWithBonus;
     private final ObjectProperty<LocalDate> hireDate;
     private final BooleanProperty selected;
     private final StringProperty compensationType;
@@ -30,6 +31,7 @@ public class Employee {
         this.position = new SimpleStringProperty(position);
         this.salary = new SimpleDoubleProperty(salary);
         this.bonus = new SimpleDoubleProperty(0.0);
+        this.salaryWithBonus = new SimpleDoubleProperty(salary);
         this.selected = new SimpleBooleanProperty(false);
         this.hireDate = new SimpleObjectProperty<>(hireDate);
         this.experienceYears = experienceYears;
@@ -44,7 +46,8 @@ public class Employee {
 
     // Конструктор для новых сотрудников
     public Employee(String firstName, String lastName, String departmentName, String position,
-                    double salary, LocalDate hireDate, int experienceYears, int experienceMonths) {
+                    double salary, DoubleProperty salaryWithBonus, LocalDate hireDate, int experienceYears, int experienceMonths) {
+        this.salaryWithBonus = salaryWithBonus;
         this.id = new SimpleIntegerProperty();
         this.firstName = new SimpleStringProperty(firstName);
         this.lastName = new SimpleStringProperty(lastName);
@@ -65,6 +68,14 @@ public class Employee {
 
 
     // Геттеры и сеттеры для новых полей
+
+    public double getSalaryWithBonus() {
+        return salaryWithBonus.get();
+    }
+
+    public void setSalaryWithBonus(double salaryWithBonus) {
+        this.salaryWithBonus.set(salaryWithBonus);
+    }
 
     public String getPerformance() { return performance.get(); }
     public SimpleStringProperty performanceProperty() { return performance; }

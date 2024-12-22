@@ -34,6 +34,12 @@ public class BonusCalculator {
         double holidayWorkBonus = employee.getHolidayHours() * employee.getSalary() * 0.001; // 0.1% за праздники
 
         // Общая премия
-        return baseBonus + experienceBonus + performanceBonus + nightWorkBonus + holidayWorkBonus;
+        double totalBonus = baseBonus + experienceBonus + performanceBonus + nightWorkBonus + holidayWorkBonus;
+
+        // Обновляем поле salaryWithBonus
+        double salaryWithBonus = employee.getSalary() + totalBonus;
+        employee.setSalaryWithBonus(salaryWithBonus);
+
+        return totalBonus;
     }
 }

@@ -42,6 +42,8 @@ public class HelloController {
     @FXML private TableColumn<Employee, String> summaryFirstNameColumn;
     @FXML private TableColumn<Employee, String> summaryLastNameColumn;
     @FXML private TableColumn<Employee, Double> summaryBonusColumn;
+    @FXML private TableColumn<Employee, Double> summarySalaryWithBonusColumn;
+
 
     @FXML private Button loadButton;
     @FXML private Button calculateButton;
@@ -129,6 +131,23 @@ public class HelloController {
                 }
             }
         });
+
+        // Форматирование зарплаты с учетом премии
+        summarySalaryWithBonusColumn.setCellValueFactory(new PropertyValueFactory<>("salaryWithBonus"));
+        summarySalaryWithBonusColumn.setCellFactory(column -> new TableCell<>() {
+            private final DecimalFormat format = new DecimalFormat("#,##0.00");
+
+            @Override
+            protected void updateItem(Double salary, boolean empty) {
+                super.updateItem(salary, empty);
+                if (empty || salary == null) {
+                    setText(null);
+                } else {
+                    setText(format.format(salary));
+                }
+            }
+        });
+
 
         // Форматирование опыта
         experienceColumn.setCellValueFactory(cellData -> {
@@ -218,6 +237,7 @@ public class HelloController {
         summaryFirstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
         summaryLastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
         summaryBonusColumn.setCellValueFactory(new PropertyValueFactory<>("bonus"));
+        summarySalaryWithBonusColumn.setCellValueFactory(new PropertyValueFactory<>("salaryWithBonus")); // Убедитесь, что этот код добавлен
 
         summaryBonusColumn.setCellFactory(column -> new TableCell<>() {
             private final DecimalFormat format = new DecimalFormat("#,##0.00");
@@ -235,6 +255,7 @@ public class HelloController {
 
         summaryTableView.setItems(summaryData);
     }
+
 
     /**
      * Загрузка данных из базы данных.
@@ -364,6 +385,7 @@ public class HelloController {
             if (employee.isSelected()) { // Проверяем, выбран ли сотрудник
                 double totalBonus = bonusCalculator.calculateBonus(employee);
                 employee.setBonus(totalBonus);
+                employee.setSalaryWithBonus(employee.getSalary() + totalBonus);
 
                 summaryData.add(employee);
                 employeeDAO.insertBonus(employee.getId(), 2024, totalBonus);
@@ -372,6 +394,7 @@ public class HelloController {
 
         summaryTableView.refresh();
     }
+
 
 
 

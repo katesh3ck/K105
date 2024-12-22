@@ -9,6 +9,7 @@
 
 <?import javafx.scene.control.ChoiceBox?>
 
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.course.controllers.HelloController" stylesheets="@styles.css">
 
     <!-- Верхняя панель -->
@@ -55,8 +56,14 @@
                     <TableColumn fx:id="summaryFirstNameColumn" text="Имя" prefWidth="150" />
                     <TableColumn fx:id="summaryLastNameColumn" text="Фамилия" prefWidth="150" />
                     <TableColumn fx:id="summaryBonusColumn" text="Премия" prefWidth="150" />
+                    <TableColumn fx:id="summarySalaryWithBonusColumn" text="Зарплата с учетом премии" prefWidth="150">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="salaryWithBonus" />
+                        </cellValueFactory>
+                    </TableColumn>
                 </columns>
             </TableView>
+
 
             <!-- Кнопки для взаимодействия -->
             <HBox spacing="10" alignment="CENTER">
@@ -67,8 +74,6 @@
         </VBox>
     </center>
 
-
-
     <!-- Нижняя панель с кнопками -->
     <bottom>
         <HBox spacing="15" alignment="CENTER" style="-fx-padding: 10px;">
@@ -78,3 +83,4 @@
     </bottom>
 
 </BorderPane>
+
