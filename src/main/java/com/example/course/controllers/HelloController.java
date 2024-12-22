@@ -17,6 +17,7 @@ import javafx.scene.layout.VBox;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public class HelloController {
 
@@ -320,12 +321,26 @@ public class HelloController {
         }
     }
 
-    @FXML
-    private void deleteEmployeeAction() {
-        System.out.println("deleteEmployeeAction called"); // Временное сообщение для отладки
+    @FXML private void deleteEmployeeAction() {
         Employee selectedEmployee = tableView.getSelectionModel().getSelectedItem();
+        ObservableList<Employee> employeeData = tableView.getItems();
+        deleteEmployee(selectedEmployee, employeeData);
+    }
+
+    public void deleteEmployee(Employee selectedEmployee, ObservableList<Employee> employeeData) {
         if (selectedEmployee != null) {
-            employeeManager.deleteEmployee(selectedEmployee, employeeData);
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Подтверждение удаления");
+            alert.setHeaderText("Вы уверены, что хотите удалить выбранного сотрудника?");
+            alert.setContentText("Сотрудник будет удален из базы данных.");
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                employeeDAO.deleteEmployee(selectedEmployee.getId());
+                employeeData.remove(selectedEmployee);
+                tableView.refresh(); // Обновление таблицы
+                System.out.println("Employee deleted from application: " + selectedEmployee.getId()); // Сообщение для отладки
+            }
         } else {
             showError("Сообщение", "Пожалуйста, выберите сотрудника для удаления.");
         }
@@ -334,6 +349,9 @@ public class HelloController {
 
 
 
+    private void refreshTable() {
+        tableView.refresh();
+    }
 
     /**
      * Расчёт премий сотрудников только для выбранных.

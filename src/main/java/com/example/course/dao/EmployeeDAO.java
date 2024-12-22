@@ -202,19 +202,67 @@ public class EmployeeDAO { // Сделаем класс public
      * Удаление сотрудника из базы данных.
      */
     public void deleteEmployee(int employeeId) {
-        String sql = "DELETE FROM employees WHERE id = ?";
-        System.out.println("SQL: " + sql + " with employeeId: " + employeeId); // Временное сообщение для отладки
+        // Сначала удаляем связанные записи в таблицах employee_results и bonuses
+        String deleteResultsSql = "DELETE FROM employee_results WHERE employee_id = ?";
+        String deleteBonusesSql = "DELETE FROM bonuses WHERE employee_id = ?";
+        String deleteEmployeeSql = "DELETE FROM employees WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            if (conn != null) {
+                System.out.println("Connection established successfully."); // Сообщение для отладки
+            } else {
+                System.err.println("Failed to establish connection to the database.");
+                return;
+            }
 
-            pstmt.setInt(1, employeeId);
-            int rowsAffected = pstmt.executeUpdate();
-            System.out.println("Rows affected: " + rowsAffected); // Временное сообщение для отладки
+            // Отключаем автокоммит для выполнения транзакции
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement deleteResultsStmt = conn.prepareStatement(deleteResultsSql);
+                 PreparedStatement deleteBonusesStmt = conn.prepareStatement(deleteBonusesSql);
+                 PreparedStatement deleteEmployeeStmt = conn.prepareStatement(deleteEmployeeSql)) {
+
+                // Удаляем связанные записи из employee_results
+                deleteResultsStmt.setInt(1, employeeId);
+                int rowsAffectedInResults = deleteResultsStmt.executeUpdate();
+                System.out.println("Rows affected in employee_results: " + rowsAffectedInResults); // Временное сообщение для отладки
+
+                // Удаляем связанные записи из bonuses
+                deleteBonusesStmt.setInt(1, employeeId);
+                int rowsAffectedInBonuses = deleteBonusesStmt.executeUpdate();
+                System.out.println("Rows affected in bonuses: " + rowsAffectedInBonuses); // Временное сообщение для отладки
+
+                // Удаляем запись сотрудника из employees
+                deleteEmployeeStmt.setInt(1, employeeId);
+                int rowsAffectedInEmployees = deleteEmployeeStmt.executeUpdate();
+                System.out.println("Rows affected in employees: " + rowsAffectedInEmployees); // Временное сообщение для отладки
+
+                // Подтверждаем транзакцию
+                conn.commit();
+
+                if (rowsAffectedInEmployees == 0) {
+                    System.err.println("Ошибка: Сотрудник с ID " + employeeId + "не найден в базе данных.");
+                } else {
+                    System.out.println("Сотрудник с ID " + employeeId + "успешно удален.");
+                }
+            } catch (SQLException e) {
+                // Откат транзакции в случае ошибки
+                conn.rollback();
+                e.printStackTrace();
+                System.err.println("Ошибка при удалении сотрудника: " + e.getMessage());
+            } finally {
+                // Восстанавливаем автокоммит
+                conn.setAutoCommit(true);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
+            System.err.println("Ошибка при установлении соединения: " + e.getMessage());
         }
     }
+
+
+
+
 
 
 
