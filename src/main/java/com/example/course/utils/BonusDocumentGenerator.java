@@ -14,45 +14,51 @@ public class BonusDocumentGenerator {
         // Создание документа
         XWPFDocument document = new XWPFDocument();
 
-        // Создание заголовка
-        XWPFParagraph title = document.createParagraph();
-        title.setAlignment(ParagraphAlignment.CENTER);
-        XWPFRun titleRun = title.createRun();
-        titleRun.setText("Представление о поощрении");
-        titleRun.setBold(true);
-        titleRun.setFontSize(16);
-
-        // Добавление подзаголовка
-        XWPFParagraph subtitle = document.createParagraph();
-        subtitle.setAlignment(ParagraphAlignment.CENTER);
-        XWPFRun subtitleRun = subtitle.createRun();
-        subtitleRun.setText("Информация о сотрудниках");
-        subtitleRun.setFontSize(14);
-        subtitleRun.setItalic(true);
-        subtitleRun.addBreak();
-
         for (Employee employee : employees) {
-            // Создание таблицы для каждого сотрудника
-            XWPFTable table = document.createTable();
-            table.setWidth("100%");
+            // Добавление разделителя для каждого сотрудника
+            if (document.getParagraphs().size() > 0) {
+                XWPFParagraph pageBreak = document.createParagraph();
+                pageBreak.setPageBreak(true);
+            }
 
-            // Добавление строки заголовков таблицы
-            XWPFTableRow headerRow = table.getRow(0);
-            headerRow.getCell(0).setText("Параметр");
-            headerRow.addNewTableCell().setText("Значение");
+            // Заголовок документа
+            XWPFParagraph title = document.createParagraph();
+            title.setAlignment(ParagraphAlignment.CENTER);
+            XWPFRun titleRun = title.createRun();
+            titleRun.setText("ПРЕДСТАВЛЕНИЕ");
+            titleRun.setBold(true);
+            titleRun.setFontSize(16);
+            titleRun.setFontFamily("Times New Roman");
 
-            // Добавление данных о сотруднике в таблицу
-            addTableRow(table, "Фамилия, имя, отчество", employee.getFirstName() + " " + employee.getLastName());
-            addTableRow(table, "Наименование должности", employee.getPosition());
-            addTableRow(table, "Структурное подразделение", employee.getDepartmentName());
-            addTableRow(table, "Стаж работы", employee.getExperienceYears() + " лет");
-            addTableRow(table, "Оценка производственной деятельности", employee.getPerformance());
-            addTableRow(table, "Мотив поощрения", "За добросовестное выполнение обязанностей и высокую производительность.");
-            addTableRow(table, "Основание", "Итоги работы за год.");
+            // Место издания
+            XWPFParagraph location = document.createParagraph();
+            location.setAlignment(ParagraphAlignment.CENTER);
+            XWPFRun locationRun = location.createRun();
+            locationRun.setText("Место издания: __________________");
+            locationRun.setFontSize(14);
+            locationRun.setFontFamily("Times New Roman");
 
-            // Добавление разделителя между сотрудниками
-            XWPFParagraph separator = document.createParagraph();
-            separator.setPageBreak(true);
+            // Номер
+            XWPFParagraph number = document.createParagraph();
+            number.setAlignment(ParagraphAlignment.CENTER);
+            XWPFRun numberRun = number.createRun();
+            numberRun.setText("№ ______________");
+            numberRun.setFontSize(14);
+            numberRun.setFontFamily("Times New Roman");
+
+            // Основная информация о сотруднике
+            addParagraph(document, "Фамилия, имя, отчество работника:", employee.getFirstName() + " " + employee.getLastName());
+            addParagraph(document, "Наименование должности (профессии):", employee.getPosition());
+            addParagraph(document, "Наименование структурного подразделения:", employee.getDepartmentName());
+            addParagraph(document, "Стаж работы в данной организации:", employee.getExperienceYears() + " лет");
+            addParagraph(document, "Оценка производственной деятельности:", employee.getPerformance());
+            addParagraph(document, "Мотив поощрения:", "За добросовестное выполнение обязанностей и высокую производительность.");
+            addParagraphWithSpacing(document, "Основание:", "Итоги работы за год.", 2000); // Увеличенный отступ после основания
+
+            // Подпись руководителя
+            addParagraph(document, "Руководитель структурного подразделения", "_________________________");
+            addParagraph(document, "Подпись", "_________________________");
+            addParagraph(document, "Расшифровка подписи", "_________________________");
         }
 
         // Сохранение документа в указанную папку
@@ -68,10 +74,30 @@ public class BonusDocumentGenerator {
         }
     }
 
-    // Метод для добавления строки в таблицу
-    private void addTableRow(XWPFTable table, String parameter, String value) {
-        XWPFTableRow row = table.createRow();
-        row.getCell(0).setText(parameter);
-        row.getCell(1).setText(value);
+    // Метод для добавления параграфа с заголовком и текстом
+    private void addParagraph(XWPFDocument document, String title, String text) {
+        XWPFParagraph paragraph = document.createParagraph();
+        XWPFRun run = paragraph.createRun();
+        run.setFontSize(14);
+        run.setFontFamily("Times New Roman");
+        run.setBold(true);
+        run.setText(title);
+        run.addBreak();
+        run.setBold(false);
+        run.setText(text);
+    }
+
+    // Метод для добавления параграфа с увеличенным отступом
+    private void addParagraphWithSpacing(XWPFDocument document, String title, String text, int spacingAfter) {
+        XWPFParagraph paragraph = document.createParagraph();
+        paragraph.setSpacingAfter(spacingAfter);
+        XWPFRun run = paragraph.createRun();
+        run.setFontSize(14);
+        run.setFontFamily("Times New Roman");
+        run.setBold(true);
+        run.setText(title);
+        run.addBreak();
+        run.setBold(false);
+        run.setText(text);
     }
 }
