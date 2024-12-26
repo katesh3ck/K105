@@ -6,9 +6,12 @@ import org.apache.poi.xwpf.usermodel.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class BonusDocumentGenerator {
+
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.00");
 
     public void generateBonusDocument(List<Employee> employees) {
         // Создание документа
@@ -52,7 +55,8 @@ public class BonusDocumentGenerator {
             addParagraph(document, "Наименование структурного подразделения:", employee.getDepartmentName());
             addParagraph(document, "Стаж работы в данной организации:", employee.getExperienceYears() + " лет");
             addParagraph(document, "Оценка производственной деятельности:", employee.getPerformance());
-            addParagraph(document, "Мотив поощрения:", "За добросовестное выполнение обязанностей и высокую производительность.");
+            addParagraph(document, "Мотив поощрения:", "За добросовестное выполнение обязанностей");
+            addParagraph(document, "Полученная премия:", DECIMAL_FORMAT.format(employee.getBonus()) + " рублей"); // Премия с двумя знаками после запятой
             addParagraphWithSpacing(document, "Основание:", "Итоги работы за год.", 2000); // Увеличенный отступ после основания
 
             // Подпись руководителя

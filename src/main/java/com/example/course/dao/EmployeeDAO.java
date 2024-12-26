@@ -203,7 +203,6 @@ public class EmployeeDAO { // Сделаем класс public
      */
     public void deleteEmployee(int employeeId) {
         // Сначала удаляем связанные записи в таблицах employee_results и bonuses
-        String deleteResultsSql = "DELETE FROM employee_results WHERE employee_id = ?";
         String deleteBonusesSql = "DELETE FROM bonuses WHERE employee_id = ?";
         String deleteEmployeeSql = "DELETE FROM employees WHERE id = ?";
 
@@ -218,14 +217,8 @@ public class EmployeeDAO { // Сделаем класс public
             // Отключаем автокоммит для выполнения транзакции
             conn.setAutoCommit(false);
 
-            try (PreparedStatement deleteResultsStmt = conn.prepareStatement(deleteResultsSql);
-                 PreparedStatement deleteBonusesStmt = conn.prepareStatement(deleteBonusesSql);
+            try (PreparedStatement deleteBonusesStmt = conn.prepareStatement(deleteBonusesSql);
                  PreparedStatement deleteEmployeeStmt = conn.prepareStatement(deleteEmployeeSql)) {
-
-                // Удаляем связанные записи из employee_results
-                deleteResultsStmt.setInt(1, employeeId);
-                int rowsAffectedInResults = deleteResultsStmt.executeUpdate();
-                System.out.println("Rows affected in employee_results: " + rowsAffectedInResults); // Временное сообщение для отладки
 
                 // Удаляем связанные записи из bonuses
                 deleteBonusesStmt.setInt(1, employeeId);
